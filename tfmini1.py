@@ -4,6 +4,7 @@ import time
 
 ser = serial.Serial("/dev/ttyTHS1", 115200)
 
+
 def getTFminiData():
     while True:
         #time.sleep(0.1)
