@@ -12,7 +12,7 @@ def read_data():
     try:
         # Read 8 bytes from the device
         data = bus.read_i2c_block_data(address, 0, 8)
-        print("data")
+        print(data)
         return data
     except IOError as e:
         print(f"Error reading from I2C device: {e}")
