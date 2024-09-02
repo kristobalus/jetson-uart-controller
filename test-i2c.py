@@ -10,7 +10,7 @@ address = 0x50
 # write Reg_H, Reg_L and Data Length to the sensor, without (!) a STOP
 # request read, specifying the sensor and 7 bytes
 
-write = i2c_msg.write(address, [0, 1, 6])
+write = i2c_msg.write(address, [1, 2, 7])
 read = i2c_msg.read(address, 9)
 
 
