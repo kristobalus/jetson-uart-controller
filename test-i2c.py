@@ -1,7 +1,7 @@
 import time
 from smbus2 import smbus2, i2c_msg
 
-bus = smbus2.SMBus(1)
+bus = smbus2.SMBus(0)
 
 def read_sensor(address):
     write_msg = i2c_msg.write(address, [1, 2, 7])
