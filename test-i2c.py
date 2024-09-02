@@ -5,7 +5,7 @@ bus = smbus2.SMBus()  # or bus = smbus2.SMBus(1) e.g 1 for Raspberry Pie
 bus.open(0)
 
 # I2C address of the device
-address = 0x57 # replace with your device's I2C address
+address = 0x50 # replace with your device's I2C address
 
 
 def read_data():
@@ -20,10 +20,7 @@ def read_data():
         dist = (data[3] << 8 | data[2])
         strength = (data[5] << 8 | data[4])
         mode = (data[6])
-        print(f"trig_flag={trig_flag}")
-        print(f"dist={dist}")
-        print(f"strength={strength}")
-        print(f"mode={mode}")
+        print(f"trig_flag={trig_flag}, dist={dist}, strength={strength}, mode={mode}")
         return data
     except IOError as e:
         print(f"Error reading from I2C device: {e}")
@@ -38,7 +35,7 @@ def main():
         #         distance = data[2] + data[3] * 256
         #         strength = data[4] + data[5] * 256
         #         print('(', distance, ',', strength, ')')
-        time.sleep(1)
+        time.sleep(0.1)
 
 
 try:
