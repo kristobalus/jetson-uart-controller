@@ -4,11 +4,8 @@ from smbus2 import SMBus, i2c_msg
 import time
 
 
-bus = SMBus(0)
-address = 0x50
-
-# write Reg_H, Reg_L and Data Length to the sensor, without (!) a STOP
-# request read, specifying the sensor and 7 bytes
+bus = SMBus(1)
+address = 0x10
 
 write = i2c_msg.write(address, [5, 0, 1, 6])
 read = i2c_msg.read(address, 9)
