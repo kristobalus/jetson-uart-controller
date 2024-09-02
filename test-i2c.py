@@ -10,9 +10,10 @@ address = 0x50
 # write Reg_H, Reg_L and Data Length to the sensor, without (!) a STOP
 # request read, specifying the sensor and 7 bytes
 
+OBTAIN_FIRMWARE = [0x5A, 0x04, 0x01, 0x5F]
 READ_TRIGGER = [0x04, 0x04,  0x62]
 READ_DATA_FRAME = [0x05, 0x00, 0x01, 0x60]
-write = i2c_msg.write(address, READ_TRIGGER)
+write = i2c_msg.write(address, OBTAIN_FIRMWARE)
 read = i2c_msg.read(address, 9)
 
 
