@@ -1,8 +1,7 @@
 import smbus2
 import time
 
-# I2C bus (e.g., 1 for Raspberry Pi)
-bus = smbus2.SMBus(1)
+bus = smbus2.SMBus("/dev/i2c-42")  # or bus = smbus2.SMBus(1) e.g 1 for Raspberry Pie
 # I2C address of the device
 address = 0x10  # replace with your device's I2C address
 
