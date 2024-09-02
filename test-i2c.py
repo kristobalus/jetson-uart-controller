@@ -2,10 +2,11 @@ import time
 from smbus2 import SMBus, i2c_msg
 
 bus = SMBus(0)
-
+OBTAIN_FIRMWARE_VERSION   = 0x00010407
 
 def read_sensor(address):
-    write_msg = i2c_msg.write(address, [1, 2, 7])
+    # write_msg = i2c_msg.write(address, [1, 2, 7])
+    write_msg = i2c_msg.write(address, OBTAIN_FIRMWARE_VERSION)
     read_msg = i2c_msg.read(address, 7)
     bus.i2c_rdwr(write_msg, read_msg)
     data = list(read_msg)
