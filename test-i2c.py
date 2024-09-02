@@ -9,7 +9,7 @@ def main():
     write = i2c_msg.write(address, [1, 2, 7])
     read = i2c_msg.read(address, 7)
 
-    with SMBus(1) as bus:
+    with SMBus(0) as bus:
         bus.i2c_rdwr(write, read)
         data = list(read)
         TrigFlag = data[0]
