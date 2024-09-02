@@ -1,29 +1,31 @@
-import time
 from smbus2 import SMBus, i2c_msg
+import time
 
-bus = SMBus(0)
+# I2C address of the TFmini Plus (default is 0x10)
+I2C_ADDRESS = 0x10
 
+# Initialize the I2C bus (use the correct bus number, e.g., 1 for Raspberry Pi)
+bus = SMBus(1)
 
-def read_sensor(address):
-    write_msg = i2c_msg.write(address, [1, 2, 7])
-    read_msg = i2c_msg.read(address, 7)
-    bus.i2c_rdwr(write_msg, read_msg)
-    data = list(read_msg)
+# Command to obtain the firmware version
+command = [0x5A, 0x04, 0x01, 0x5F]
 
-    flag = data[0]
-    dist = data[3] << 8 | data[2]
-    strength = data[5] << 8 | data[4]
-    mode = data[6]
+# Send the command
+write_msg = i2c_msg.write(I2C_ADDRESS, command)
+bus.i2c_rdwr(write_msg)
 
-    print(address, dist)
+# Wait briefly to allow the device to respond
+time.sleep(0.1)
 
-    return [flag, dist, strength, mode]
+# Read the response (assume a response length of 7 bytes for firmware version)
+read_msg = i2c_msg.read(I2C_ADDRESS, 7)
+bus.i2c_rdwr(read_msg)
 
+# Close the I2C bus
+bus.close()
 
-try:
-    while True:
-        read_sensor(0x50)
-        time.sleep(0.1)
+# Convert the response to a list of integers
+response = list(read_msg)
 
-except KeyboardInterrupt:  # Ctrl+C
-    print("Program interrupted")
+# Print the response in hexadecimal format
+print("Response:", ''.join(f'{byte:02X}' for byte in response))
