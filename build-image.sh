@@ -2,7 +2,7 @@
 
 # Read the version from package.json
 BRANCH=$(git branch --show-current)
-VERSION=$(jq -r .version ./package.json)
+VERSION="1.0.0"
 IMAGE=${IMAGE:-"ghcr.io/flux-agi/flux-lidar-tfmini"}
 echo "building image $IMAGE:$VERSION using buildx for linux/amd64..."
 
