@@ -14,7 +14,7 @@ OBTAIN_FIRMWARE = [0x04, 0x01, 0x5F]
 READ_TRIGGER = [0x04, 0x04,  0x62]
 READ_DIST_CM = [0x05, 0x00, 0x01, 0x60]
 READ_DIST_MM = [0x05, 0x00, 0x06, 0x65]
-write = i2c_msg.write(address, READ_DIST_MM)
+write = i2c_msg.write(address, READ_DIST_CM)
 read = i2c_msg.read(address, 9)
 
 
