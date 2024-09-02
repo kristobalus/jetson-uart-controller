@@ -23,7 +23,6 @@ def read_sensor(address):
 try:
     while True:
         read_sensor(0x50)
-        read_sensor(0x57)
         time.sleep(0.1)
 
 except KeyboardInterrupt:  # Ctrl+C
