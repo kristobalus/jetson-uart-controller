@@ -1,7 +1,6 @@
 import time
 from smbus2 import SMBus, i2c_msg
 
-bus = SMBus(0)
 
 #  = = = = =  SEND A COMMAND TO THE DEVICE  = = = = = = = = = =0
 #
@@ -193,20 +192,20 @@ def sendCommand( cmnd, param):
     status = TFMP_READY
     return True
 
-def read_sensor(address):
-    write_msg = i2c_msg.write(address, [1, 2, 7])
-    read_msg = i2c_msg.read(address, 9)
-    bus.i2c_rdwr(write_msg, read_msg)
-    data = list(read_msg)
-
-    flag = data[0]
-    dist = data[3] << 8 | data[2]
-    strength = data[5] << 8 | data[4]
-    mode = data[6]
-
-    print(address, dist)
-
-    return [flag, dist, strength, mode]
+# def read_sensor(address):
+#     write_msg = i2c_msg.write(address, [1, 2, 7])
+#     read_msg = i2c_msg.read(address, 9)
+#     bus.i2c_rdwr(write_msg, read_msg)
+#     data = list(read_msg)
+#
+#     flag = data[0]
+#     dist = data[3] << 8 | data[2]
+#     strength = data[5] << 8 | data[4]
+#     mode = data[6]
+#
+#     print(address, dist)
+#
+#     return [flag, dist, strength, mode]
 
 
 try:
