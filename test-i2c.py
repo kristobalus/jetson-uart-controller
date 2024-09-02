@@ -11,7 +11,7 @@ address = 0x50  # replace with your device's I2C address
 def read_data():
     try:
         # Read 8 bytes from the device
-        data = bus.read_i2c_block_data(address, 0, 8)
+        data = bus.read_i2c_block_data(address, 0, 9)
         print(data)
         return data
     except IOError as e:
