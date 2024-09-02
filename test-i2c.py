@@ -10,7 +10,7 @@ address = 0x50 # replace with your device's I2C address
 
 
 def main():
-    sensor = TFminiI2C(1, 0x10)
+    sensor = TFminiI2C(0, 0x50)
     while True:
         distance=sensor.read_distance()
         print(f"distance={distance}")
