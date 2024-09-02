@@ -17,12 +17,15 @@ with SMBus(0) as bus:
     data = list(read)
 
     print(data)
+    print(data[0])
+    print(data[2] << 8 | data[1])
+    print(data[3])
 
-    TrigFlag = data[0]
-    Dist = ((data[3] << 8 | data[2]))
-    Strength = ((data[5] << 8 | data[4]))
-    Mode = (data[6])
+    # TrigFlag = data[0]
+    # Dist = ((data[3] << 8 | data[2]))
+    # Strength = ((data[5] << 8 | data[4]))
+    # Mode = (data[6])
 
-    print(Dist)
-    print(Strength)
-    print(Mode)
+    # print(Dist)
+    # print(Strength)
+    # print(Mode)
