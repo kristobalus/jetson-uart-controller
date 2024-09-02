@@ -45,13 +45,14 @@ class TFminiI2C:
     """
 
     def __init__(self, i2cbus, address):
-
-        self.SetReg2 = None
-
-        self.AddReg2 = None
-        self._setReg = None
-        self.AddReg = None
-        self.RangeValue = None
+        self.reset_msg = None
+        self.new_address = None
+        self.range_units = None
+        self.set_reg2 = None
+        self.add_reg2 = None
+        self._set_reg_msg = None
+        self.add_reg_msg = None
+        self.range_value = None
         self.Mode = None
         self.Strength = None
         self.Dist = None
@@ -64,55 +65,39 @@ class TFminiI2C:
         self.address = address
 
         # 0x0026, send adddress between 0x10-0x78
-        self.regSetSlave = [0, 38, 1]
+        self.reg_set_slave_msg = [0, 38, 1]
 
         # 0x0027, set trigger mode, default 0x00
-        self.regTriggerMode = [0, 39, 1]
+        self.reg_trigger_mode = [0, 39, 1]
 
         # 0x0070, send 0x02 for reset. restore default values, leaves slave address and trigger mode intact
-        self.regDefaultSet = [
-            0,
-            112,
-            1,
-        ]
+        self.reg_default_set = [0, 112, 1]
 
         # 0x0051, default 0x00, send 0x01 for fixed detection range limits
-        self.regDetPattern = [
-            0,
-            81,
-            1,
-        ]
+        self.reg_det_pattern = [0, 81, 1]
 
         # 0x0050, send 0x00 for short (0.3-2m),
         # 0x03 for middle (0.5-5m) or 0x07 for long (1-12m). Set to fixed detection range first.
-        self.regDetRange = [
-            0,
-            80,
-            1,
-        ]
+        self.reg_det_range = [0, 80, 1]
 
         # 0x0066, send 0x00 for mm or 0x01 for cm (default)
-        self.regDistUnit = [
-            0,
-            102,
-            1,
-        ]
+        self.reg_dist_unit = [0, 102, 1]
 
-    def _setRegister(self, register, setvalue):
+    def _set_register(self, register, setvalue):
         """ helper function """
 
         self.register = register
         self.setvalue = setvalue
-        self.AddReg = i2c_msg.write(self.address, self.register)
-        self.SetReg = i2c_msg.write(self.address, [setvalue])
+        self.add_reg_msg = i2c_msg.write(self.address, self.register)
+        self.set_reg_read = i2c_msg.write(self.address, [setvalue])
 
         with SMBus(self.i2cbus) as bus:
-            bus.i2c_rdwr(self.AddReg, self.SetReg)
+            bus.i2c_rdwr(self.add_reg_msg, self.set_reg_read)
             time.sleep(0.01)
 
         return
 
-    def readAll(self):
+    def read_all(self):
         """ Return the distance value in selected unit. Default: cm """
 
         self.write = i2c_msg.write(self.address, [1, 2, 7])
@@ -148,35 +133,35 @@ class TFminiI2C:
     def reset(self):
         """reset sensor"""
 
-        self.reset = i2c_msg.write(self.address, [0x06])
+        self.reset_msg = i2c_msg.write(self.address, [0x06])
 
         with SMBus(self.i2cbus) as bus:
-            bus.i2c_rdwr(self.reset)
+            bus.i2c_rdwr(self.reset_msg)
             time.sleep(0.05)
 
         return
 
-    def resetdefault(self):
+    def reset_default(self):
 
         """ reset sensor to factory settings, leave I2C address as is. """
-        self._setRegister(self.regDefaultSet, 0x02)
+        self._set_register(self.reg_default_set, 0x02)
 
-    def setAddress(self, newAddress):
+    def set_address(self, address):
         """set new address, needs power cycle to become active - reset apparently not sufficient"""
 
-        self.newAddress = newAddress
+        self.new_address = address
 
-        self._setRegister(self.regSetSlave, self.newAddress)
+        self._set_register(self.reg_set_slave_msg, self.new_address)
         print(
             "After power cycle, TFmini "
             + hex(self.address)
             + " will be "
-            + hex(self.newAddress)
+            + hex(self.new_address)
         )
 
         return
 
-    def setRange(self, RangeValue):
+    def set_range(self, range_value):
         """
         Use to set a short, medium or long distance range mode.
         Default behaviour is automatic switching, with a loss in accuracy while changing.
@@ -185,40 +170,40 @@ class TFminiI2C:
         Use 0x00, 0x03 or 0x07 for short, medium or long range.
         """
 
-        self.RangeValue = RangeValue
+        self.range_value = range_value
 
-        while RangeValue not in {0x00, 0x03, 0x07}:
+        while range_value not in {0x00, 0x03, 0x07}:
             print("Use 0x00, 0x03 or 0x07 for short, medium or long range.")
             return
 
-        self.AddReg = i2c_msg.write(self.address, self.regDetPattern)
-        self._setReg = i2c_msg.write(self.address, [0x01])
+        self.add_reg_msg = i2c_msg.write(self.address, self.reg_det_pattern)
+        self._set_reg_msg = i2c_msg.write(self.address, [0x01])
         """deactivate automatic range switching"""
 
         print("Set range mode to fixed.")
         with SMBus(self.i2cbus) as bus:
-            bus.i2c_rdwr(self.AddReg, self.SetReg)
+            bus.i2c_rdwr(self.add_reg_msg, self.set_reg_read)
 
         print("Set range distance.")
-        self.AddReg2 = i2c_msg.write(self.address, self.regDetRange)
-        self.SetReg2 = i2c_msg.write(self.address, [self.RangeValue])
+        self.add_reg2 = i2c_msg.write(self.address, self.reg_det_range)
+        self.set_reg2 = i2c_msg.write(self.address, [self.range_value])
         """ set fixed range """
 
         with SMBus(self.i2cbus) as bus:
-            bus.i2c_rdwr(self.AddReg2, self.SetReg2)
+            bus.i2c_rdwr(self.add_reg2, self.set_reg2)
             time.sleep(0.01)
 
         return
 
-    def setUnit(self, RangeUnit):
+    def setUnit(self, units):
 
-        self.RangeUnit = RangeUnit
+        self.range_units = units
 
-        while self.RangeUnit not in {0x00, 0x01}:
+        while self.range_units not in {0x00, 0x01}:
             print("Use 0x00 for mm, or 0x01 for cm.")
             return
 
-        self._setRegister(self.regDistUnit, self.RangeUnit)
+        self._set_register(self.reg_dist_unit, self.range_units)
         return
 
 
