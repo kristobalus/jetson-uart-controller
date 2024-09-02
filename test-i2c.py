@@ -8,24 +8,19 @@ I2C_ADDRESS = 0x50
 bus = SMBus(0)
 
 # Command to obtain the firmware version
-command = [0x5A, 0x04, 0x01, 0x5F]
-
-# Send the command
-write_msg = i2c_msg.write(I2C_ADDRESS, command)
-bus.i2c_rdwr(write_msg)
-
-# Wait briefly to allow the device to respond
-time.sleep(0.1)
-
-# Read the response (assume a response length of 7 bytes for firmware version)
+write_msg = i2c_msg.write(I2C_ADDRESS, [0x5A, 0x04, 0x01, 0x5F])
 read_msg = i2c_msg.read(I2C_ADDRESS, 7)
-bus.i2c_rdwr(read_msg)
+# Send the command
 
-# Close the I2C bus
-bus.close()
+bus.i2c_rdwr(write_msg, read_msg)
 
 # Convert the response to a list of integers
 response = list(read_msg)
+
+print(response)
+
+# Close the I2C bus
+bus.close()
 
 # Print the response in hexadecimal format
 print("Response:", ''.join(f'{byte:02X}' for byte in response))
