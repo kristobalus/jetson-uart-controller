@@ -11,7 +11,11 @@ address = 0x57 # replace with your device's I2C address
 def read_data():
     try:
         # Read 8 bytes from the device
-        data = bus.read_i2c_block_data(address, 0, 9)
+        # data = bus.read_i2c_block_data(address, 0, 9)
+        write = i2c_msg.write(address, [1, 2, 7])
+        read = i2c_msg.read(address, 7)
+        bus.i2c_rdwr(write, read)
+        data = list(read)
         trig_flag = data[0]
         dist = (data[3] << 8 | data[2])
         strength = (data[5] << 8 | data[4])
@@ -28,9 +32,6 @@ def read_data():
 
 def main():
     while True:
-        write = i2c_msg.write(address, [1, 2, 7])
-        read = i2c_msg.read(address, 7)
-        bus.i2c_rdwr(write, read)
         read_data()
         # if data:
         #     if data[0] == 0x59 and data[1] == 0x59:  # Check header
