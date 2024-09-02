@@ -2,7 +2,7 @@ import smbus2
 import time
 
 # I2C address of the TFmini-I2C LiDAR sensor
-LIDAR_I2C_ADDRESS = 0x50  # Default I2C address
+LIDAR_I2C_ADDRESS = 0x57  # Default I2C address
 
 # Register addresses
 REGISTER_HIGH_BYTE = 0x01
