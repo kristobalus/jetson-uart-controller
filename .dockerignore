@@ -1,0 +1,9 @@
+.venv
+.gitignore
+.git
+bash.sh
+doc.txt
+readme.md
+tfmini1.py
+requirements.txt
+Dockerfile
