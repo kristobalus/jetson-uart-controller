@@ -1,16 +1,14 @@
 import time
 from smbus2 import smbus2, i2c_msg
 
-address = 0x50
-bus = smbus2.SMBus(0)
+bus = smbus2.SMBus(1)
 
+def read_sensor(address):
+    write_msg = i2c_msg.write(address, [1, 2, 7])
+    read_msg = i2c_msg.read(address, 7)
 
-def read(address):
-    write = i2c_msg.write(address, [1, 2, 7])
-    read = i2c_msg.read(address, 7)
-
-    bus.i2c_rdwr(write, read)
-    data = list(read)
+    bus.i2c_rdwr(write_msg, read_msg)
+    data = list(read_msg)
 
     flag = data[0]
     dist = data[3] << 8 | data[2]
@@ -24,8 +22,8 @@ def read(address):
 
 try:
     while True:
-        read(0x50)
-        read(0x57)
+        read_sensor(0x50)
+        read_sensor(0x57)
         time.sleep(0.1)
 
 except KeyboardInterrupt:  # Ctrl+C
