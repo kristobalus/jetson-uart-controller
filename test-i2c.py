@@ -211,8 +211,8 @@ def read_sensor(address):
 
 try:
     while True:
-        # sendCommand(OBTAIN_FIRMWARE_VERSION, 0)
-        read_sensor(0x50)
+        sendCommand(OBTAIN_FIRMWARE_VERSION, 0)
+        # read_sensor(0x50)
         # read_sensor(0x57)
         time.sleep(0.1)
 
