@@ -16,10 +16,10 @@ def read_data():
         dist = (data[3] << 8 | data[2])
         strength = (data[5] << 8 | data[4])
         mode = (data[6])
-        print(trig_flag)
-        print(dist)
-        print(strength)
-        print(mode)
+        print(f"trig_flag={trig_flag}")
+        print(f"dist={dist}")
+        print(f"strength={strength}")
+        print(f"mode={mode}")
         return data
     except IOError as e:
         print(f"Error reading from I2C device: {e}")
