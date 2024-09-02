@@ -8,8 +8,8 @@ address = 0x50
 # write Reg_H, Reg_L and Data Length to the sensor, without (!) a STOP
 # request read, specifying the sensor and 7 bytes
 
-write = i2c_msg.write(address, [1, 2, 7])
-read = i2c_msg.read(address, 7)
+write = i2c_msg.write(address, [1, 4, 7])
+read = i2c_msg.read(address, 3)
 
 with SMBus(0) as bus:
     start = time.time()
