@@ -59,11 +59,143 @@ FRAME_250          = 0x00FA
 FRAME_500          = 0x01F4
 FRAME_1000         = 0x03E8
 
+# Buffer sizes
+TFMP_FRAME_SIZE =  9   # Size of one data frame = 9 bytes
+TFMP_COMMAND_MAX = 8   # Longest command = 8 bytes
+TFMP_REPLY_SIZE =  8   # Longest command reply = 8 bytes
+
+#
+# System Error Status Condition
+TFMP_READY        =  0  # no error
+TFMP_SERIAL       =  1  # serial timeout
+TFMP_HEADER       =  2  # no header found
+TFMP_CHECKSUM     =  3  # checksum doesn't match
+TFMP_TIMEOUT      =  4  # I2C timeout
+TFMP_PASS         =  5  # reply from some system commands
+TFMP_FAIL         =  6  #           "
+TFMP_I2CREAD      =  7
+TFMP_I2CWRITE     =  8  # I2C write failure
+TFMP_I2CLENGTH    =  9
+TFMP_WEAK         = 10  # Signal Strength ≤ 100
+TFMP_STRONG       = 11  # Signal Strength saturation
+TFMP_FLOOD        = 12  # Ambient Light saturation
+TFMP_MEASURE      = 13
+
+
+#
+#  Create a proper command byte array, send the command,
+#  get a response, and return the status
+def sendCommand( cmnd, param):
+    ''' Send command and get reply data'''
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - -
+    # Step 1 - A little housekeeping
+    # - - - - - - - - - - - - - - - - - - - - - - - - -
+    # make data and status variables global
+    global status, dist, flux, temp, version, reply
+    # clear status variable of any error condition
+    status = TFMP_READY;
+    # - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    #  Step 1 - Build a command data array
+    #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # From 32bit 'cmnd' integer, create a four byte array of:
+    # reply length, command length, command number and a one byte parameter
+    cmndData = bytearray( cmnd.to_bytes( TFMP_COMMAND_MAX, byteorder = 'little'))
+    #
+    replyLen = cmndData[ 0]    #  Save the first byte as reply length.
+    cmndLen = cmndData[ 1]     #  Save the second byte as command length.
+    cmndData[ 0] = 0x5A        #  Set the first byte to the HEADER code.
+    #
+    if( cmnd == SET_FRAME_RATE):    #  If the command is Set FrameRate...
+        cmndData[3:2] = param.to_bytes( 2, byteorder = 'little')     #  add the 2 byte FrameRate parameter.
+    elif( cmnd == SET_BAUD_RATE):   #  If the command is Set BaudRate...
+        cmndData[3:3] = param.to_bytes( 3, byteorder = 'little')     #  add the 3 byte BaudRate parameter.
+    #
+    cmndData = cmndData[0:cmndLen]  # re-establish length of command data array
+    #
+    #  Create a checksum for the last byte of the array
+    #  (Tests indicate the presence of the byte is
+    #  necessary, but the value is irrelevant.)
+    chkSum = 0
+    #  Add together all bytes but the last.
+    for i in range( cmndLen -1):
+        chkSum += cmndData[ i]
+    #  and save it as the last byte of command data.
+    cmndData[ cmndLen -1] = ( chkSum & 0xFF)
+    #  - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    #  - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    #  Step 2 - Send the command data array to the device
+    #  - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    cmndList = list(cmndData)
+    bus = SMBus(0)
+    bus.write_i2c_block_data(0x50, 0, cmndList)
+    bus.close()
+    #
+    #  If the command does not expect a reply, then we're
+    #  finished here. Go home.
+    if( replyLen == 0):
+        return True
+    #  + + + + + + + + + + + + + + + + + + + + + + + + +
+
+    #  - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    #  Step 3 - Get command reply data back from the device.
+    #  - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    #  Give device a chance to fill its registers
+    time.sleep(0.002)
+    #  Read block of data into declared list 'reply'
+    bus = SMBus(0)
+    reply = bus.read_i2c_block_data(0x50, 0, replyLen)
+    bus.close()
+
+    '''
+    for i in range( replyLen):
+        reply[ i] = bus.read_byte( addr)
+    for i in range( len(reply)):
+        print( f" {reply[i]:0{2}X}", end='')
+    print()
+    '''
+
+    #  - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    #  Step 4 - Perform a checksum test.
+    #  - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    #  Declare and clear the 'chkSum' variable
+    chkSum = 0
+    #  Add together all bytes but the last.
+    for i in range( replyLen -1):
+        chkSum += reply[ i]
+    #  If the low order byte does not equal the last byte...
+    if( ( chkSum & 0xff) != reply[ replyLen - 1]):
+        status = TFMP_CHECKSUM  #  ...then set error
+        return False            #  and return 'False.'
+
+    #  - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    #  Step 5 - Interpret different command responses.
+    #  - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if( cmnd == OBTAIN_FIRMWARE_VERSION):
+        version =\
+            str( reply[ 5]) + '.' +\
+            str( reply[ 4]) + '.' +\
+            str( reply[ 3])
+    else:
+        if( cmnd == SYSTEM_RESET or
+            cmnd == RESTORE_FACTORY_SETTINGS or
+            cmnd == SAVE_SETTINGS ):
+            if( reply[ 3] == 1):    #  If PASS/FAIL byte non-zero
+                status = TFMP_FAIL  #  then set status to 'FAIL'
+                return False        #  and return 'False'.
+
+    #  - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    #  Step 6 - Set status to 'READY' and return 'True'
+    #  - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    status = TFMP_READY
+    return True
 
 def read_sensor(address):
-    # write_msg = i2c_msg.write(address, [1, 2, 7])
-    write_msg = i2c_msg.write(address, OBTAIN_FIRMWARE_VERSION)
-    read_msg = i2c_msg.read(address, 3)
+    write_msg = i2c_msg.write(address, [1, 2, 7])
+    read_msg = i2c_msg.read(address, 9)
     bus.i2c_rdwr(write_msg, read_msg)
     data = list(read_msg)
 
@@ -79,6 +211,7 @@ def read_sensor(address):
 
 try:
     while True:
+        sendCommand(OBTAIN_FIRMWARE_VERSION, 0)
         read_sensor(0x50)
         read_sensor(0x57)
         time.sleep(0.1)
