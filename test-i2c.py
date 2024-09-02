@@ -15,6 +15,9 @@ with SMBus(0) as bus:
     start = time.time()
     bus.i2c_rdwr(write, read)
     data = list(read)
+
+    print(data)
+
     TrigFlag = data[0]
     Dist = ((data[3] << 8 | data[2]))
     Strength = ((data[5] << 8 | data[4]))
