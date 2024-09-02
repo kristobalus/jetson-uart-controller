@@ -5,7 +5,7 @@ import time
 
 
 bus = SMBus(0)
-address = 0x50
+address = 0x57
 
 # write Reg_H, Reg_L and Data Length to the sensor, without (!) a STOP
 # request read, specifying the sensor and 7 bytes
