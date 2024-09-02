@@ -20,5 +20,7 @@ while True:
     data = list(read)
     print(data)
     dist = (data[3] << 8 | data[2])
-    print(dist)
+    strength = data[5] << 8 | data[4]
+    mode = data[6]
+    print(dist, strength, mode)
     time.sleep(1)
