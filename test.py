@@ -11,8 +11,8 @@ from tfmpi2c import *    # and also import all definitions
 #  and/or I2CAddr, and to test those settings.
 # - - - - - - - - - - - - - - - - - - - - - - - - -
 #I2CPort = 0     # I2C(0), /dev/i2c-0, GPIO 0/1, pins 27/28
-I2CPort = 4     # I2C(4), /dev/i2c-4, GPIO 8/9, pins 24/21
-I2CAddr = 0x10  # Device address in Hex, Decimal 16
+I2CPort = 0      # I2C(4), /dev/i2c-4, GPIO 8/9, pins 24/21
+I2CAddr = 0x50  # Device address in Hex, Decimal 16
 print( "I2C mode: ", end='')
 if(tfmP.begin( I2CPort, I2CAddr)):
     print( "ready")
