@@ -1,13 +1,31 @@
 import time
+from smbus2 import smbus2, i2c_msg
 
-from TFminiI2C import TFminiI2C
+address = 0x50
+bus = smbus2.SMBus(0)
+
+
+def read(address):
+    write = i2c_msg.write(address, [1, 2, 7])
+    read = i2c_msg.read(address, 7)
+
+    bus.i2c_rdwr(write, read)
+    data = list(read)
+
+    flag = data[0]
+    dist = data[3] << 8 | data[2]
+    strength = data[5] << 8 | data[4]
+    mode = data[6]
+
+    print(dist, strength, mode, flag)
+
+    return [flag, dist, strength, mode]
+
 
 try:
     while True:
-        sensor0 = TFminiI2C(0, 0x50)
-        sensor1 = TFminiI2C(0, 0x57)
-        print(sensor0.readDistance())
-        print(sensor1.readDistance())
+        read(0x50)
+        read(0x57)
         time.sleep(0.1)
 
 except KeyboardInterrupt:  # Ctrl+C
