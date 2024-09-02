@@ -146,7 +146,7 @@ def sendCommand( cmnd, param):
     time.sleep(0.002)
     #  Read block of data into declared list 'reply'
     # bus = SMBus(0)
-    reply = bus.read_i2c_block_data(0x50, 0, replyLen)
+    reply = bus.read_i2c_block_data(0x50, 0, 9)
     # bus.close()
 
     '''
