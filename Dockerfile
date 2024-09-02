@@ -4,7 +4,7 @@ RUN apt-get update
 RUN apt-get install -y python3-pip
 
 # Install Python packages
-RUN pip3 install pyserial paho-mqtt smbus2
+RUN pip3 install pyserial paho-mqtt smbus2 tfmpi2c
 
 # Copy the service code to /opt
 COPY . /opt/
