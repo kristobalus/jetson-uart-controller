@@ -8,7 +8,11 @@ def main():
     while True:
         distance1 = sensor1.read_distance()
         distance2 = sensor2.read_distance()
-        print(f"distance1={distance1}, distance2={distance2}")
+        data1 = sensor1.read_all()
+        print(data1)
+
+        data2 = sensor2.read_all()
+        print(data1)
         time.sleep(0.1)
 
 
@@ -16,5 +20,3 @@ try:
     main()
 except KeyboardInterrupt:  # Ctrl+C
     print("Program interrupted")
-finally:
-    bus.close()
