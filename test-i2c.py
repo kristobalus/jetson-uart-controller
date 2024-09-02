@@ -9,11 +9,11 @@ def main():
         distance1 = sensor1.read_distance()
         distance2 = sensor2.read_distance()
         data1 = sensor1.read_all()
-        print(data1)
-
         data2 = sensor2.read_all()
         print(data1)
-        time.sleep(0.1)
+        print(data2)
+        print("--------")
+        time.sleep(1)
 
 
 try:
