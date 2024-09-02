@@ -2,16 +2,17 @@ import smbus2
 import time
 
 bus = smbus2.SMBus()  # or bus = smbus2.SMBus(1) e.g 1 for Raspberry Pie
-bus.open("/dev/i2c-42")
+bus.open(0)
 
 # I2C address of the device
-address = 0x10  # replace with your device's I2C address
+address = 0x50  # replace with your device's I2C address
 
 
 def read_data():
     try:
-        # Read 9 bytes from the device
-        data = bus.read_i2c_block_data(address, 0, 9)
+        # Read 8 bytes from the device
+        data = bus.read_i2c_block_data(address, 0, 8)
+        print("data")
         return data
     except IOError as e:
         print(f"Error reading from I2C device: {e}")
