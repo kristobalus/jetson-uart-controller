@@ -1,4 +1,4 @@
-import smbus2
+from smbus2 import smbus2, i2c_msg
 import time
 
 bus = smbus2.SMBus()  # or bus = smbus2.SMBus(1) e.g 1 for Raspberry Pie
@@ -28,6 +28,9 @@ def read_data():
 
 def main():
     while True:
+        write = i2c_msg.write(address, [1, 2, 7])
+        read = i2c_msg.read(address, 7)
+        bus.i2c_rdwr(write, read)
         data = read_data()
         if data:
             if data[0] == 0x59 and data[1] == 0x59:  # Check header
