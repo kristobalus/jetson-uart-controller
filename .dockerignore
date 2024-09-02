@@ -7,3 +7,4 @@ readme.md
 tfmini1.py
 requirements.txt
 Dockerfile
+build-image.sh
