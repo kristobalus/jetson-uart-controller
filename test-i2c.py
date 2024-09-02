@@ -1,32 +1,37 @@
+import smbus2
 import time
-from smbus2 import SMBus, i2c_msg
 
-bus = SMBus(0)
+# I2C address of the TFmini-I2C LiDAR sensor
+LIDAR_I2C_ADDRESS = 0x50  # Default I2C address
 
+# Register addresses
+REGISTER_HIGH_BYTE = 0x01
+REGISTER_LOW_BYTE = 0x02
 
-def read_sensor(address):
-    # write_msg = i2c_msg.write(address, [1, 2, 7])
-    # read_msg = i2c_msg.read(address, 7)
-    # bus.i2c_rdwr(write_msg, read_msg)
-    # data = list(read_msg)
-
-    data = bus.read_i2c_block_data(address, 0, 9)
-
-    flag = data[0]
-    dist = data[3] << 8 | data[2]
-    strength = data[5] << 8 | data[4]
-    mode = data[6]
-
-    print(address, dist)
-
-    return [flag, dist, strength, mode]
+# Initialize the I2C bus
+bus = smbus2.SMBus(0)  # 1 indicates /dev/i2c-1
 
 
-try:
+def read_distance():
+    try:
+        # Read the high and low byte from the register
+        high_byte = bus.read_byte_data(LIDAR_I2C_ADDRESS, REGISTER_HIGH_BYTE)
+        low_byte = bus.read_byte_data(LIDAR_I2C_ADDRESS, REGISTER_LOW_BYTE)
+
+        # Combine the two bytes into a 16-bit value
+        distance = (high_byte << 8) + low_byte
+
+        return distance
+    except Exception as e:
+        print(f"Error reading distance: {e}")
+        return None
+
+
+if __name__ == "__main__":
     while True:
-        read_sensor(0x50)
-        read_sensor(0x57)
-        time.sleep(0.1)
-
-except KeyboardInterrupt:  # Ctrl+C
-    print("Program interrupted")
+        distance = read_distance()
+        if distance is not None:
+            print(f"Distance: {distance} cm")
+        else:
+            print("Failed to read distance")
+        time.sleep(1)  # Delay between readings
