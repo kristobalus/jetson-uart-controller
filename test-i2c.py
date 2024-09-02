@@ -15,7 +15,7 @@ def read_sensor(address):
     strength = data[5] << 8 | data[4]
     mode = data[6]
 
-    print(dist, strength, mode, flag)
+    print(address, dist)
 
     return [flag, dist, strength, mode]
 
