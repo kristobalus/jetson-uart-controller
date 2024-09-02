@@ -10,11 +10,7 @@ address = 0x57
 # write Reg_H, Reg_L and Data Length to the sensor, without (!) a STOP
 # request read, specifying the sensor and 7 bytes
 
-OBTAIN_FIRMWARE = [0x04, 0x01, 0x5F]
-READ_TRIGGER = [0x04, 0x04,  0x62]
-READ_DIST_CM = [0x05, 0x00, 0x01, 0x60]
-READ_DIST_MM = [0x05, 0x00, 0x06, 0x65]
-write = i2c_msg.write(address, READ_DIST_CM)
+write = i2c_msg.write(address, [0x05, 0x00, 0x01, 0x60])
 read = i2c_msg.read(address, 9)
 
 
