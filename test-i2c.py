@@ -4,10 +4,10 @@ from smbus2 import SMBus, i2c_msg
 import time
 
 
-bus = SMBus(1)
+bus = SMBus(8)
 address = 0x10
 
-write = i2c_msg.write(address, [5, 0, 1, 6])
+write = i2c_msg.write(address, [0x5A, 0x05, 0x00, 0x01, 0x60])
 read = i2c_msg.read(address, 9)
 
 
