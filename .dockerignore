@@ -6,5 +6,5 @@ doc.txt
 readme.md
 test-uart.py
 requirements.txt
-Dockerfile
-build-image.sh
+uart/Dockerfile
+build-uart.sh

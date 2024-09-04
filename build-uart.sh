@@ -3,7 +3,7 @@
 # Read the version from package.json
 BRANCH=$(git branch --show-current)
 VERSION="1.0.0"
-IMAGE=${IMAGE:-"ghcr.io/flux-agi/flux-lidar-tfmini"}
+IMAGE=${IMAGE:-"ghcr.io/flux-agi/flux-lidar-uart"}
 echo "building image $IMAGE:$VERSION using buildx for linux/amd64..."
 
 # docker buildx create --use --name buildx_instance --driver docker-container --bootstrap
