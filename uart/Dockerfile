@@ -7,7 +7,7 @@ RUN apt-get install -y python3-pip
 RUN pip3 install pyserial paho-mqtt
 
 # Copy the service code to /opt
-COPY .. /opt/
+COPY uart/service.py /opt/service.py
 
 # Set the working directory
 WORKDIR /opt
