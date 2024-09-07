@@ -82,7 +82,7 @@ def main_loop(mqtt_client):
 
             log.debug(f"lidar data, distance={distance}, "
                       f"strength={strength}, "
-                      f"normalized_distance={normalized_distance}"
+                      f"normalized_distance={normalized_distance}, "
                       f"mode={mode}")
 
             mqtt_client.publish(topic, normalized_distance)
