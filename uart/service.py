@@ -1,12 +1,11 @@
 from urllib.parse import urlparse
 
-import serial # pyserial
+import serial  # pyserial
 import time
 import os
 import json
 import paho.mqtt.client as mqtt
 import logging as log
-
 
 # configure logging
 # get log level from environment variable
@@ -28,7 +27,6 @@ if not mqtt_broker_url:
 parsed_mqtt_broker_url = urlparse(mqtt_broker_url)
 MQTT_BROKER_HOST = parsed_mqtt_broker_url.hostname
 MQTT_BROKER_PORT = int(parsed_mqtt_broker_url.port)
-
 
 # Get the configuration JSON from the environment variable
 config_json = os.getenv("CONFIGURATION")
@@ -79,9 +77,9 @@ def main_loop(mqtt_client):
                     strength = recv[4] + recv[5] * 256
                     normalized_distance = normalize(distance, distance_min, distance_max)
 
-                    log.debug(f"lidar data, distance={distance}, "
-                              f"strength={strength}, "
-                              f"normalized_distance={normalized_distance}")
+                    log.debug("lidar data: %s", {"distance": distance,
+                                                 "strength": strength,
+                                                 "normalized_distance": normalized_distance})
 
                     mqtt_client.publish(topic, normalized_distance)
 
