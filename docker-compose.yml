@@ -13,6 +13,7 @@ services:
     privileged: true
     environment:
       MQTT_BROKER: "mqtt://mqtt-broker:1883"
+      LOG_LEVEL: "debug"
       CONFIGURATION: |
         {
           "serial_port":  "/dev/ttyTHS0",
