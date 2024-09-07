@@ -73,17 +73,16 @@ def main_loop(mqtt_client):
         while True:
             bus.i2c_rdwr(i2c_write_msg, i2c_read_msg)
             data = list(i2c_read_msg)
-            log.debug(f"recieved data: {data}")
             distance = (data[3] << 8 | data[2])
             strength = data[5] << 8 | data[4]
             mode = data[6]
 
             normalized_distance = normalize(distance, distance_min, distance_max)
 
-            log.debug(f"lidar data, distance={distance}, "
-                      f"strength={strength}, "
-                      f"normalized_distance={normalized_distance}, "
-                      f"mode={mode}")
+            log.debug(f"lidar data", extra={distance: distance,
+                                            strength: strength,
+                                            normalized_distance: normalized_distance,
+                                            mode: mode})
 
             mqtt_client.publish(topic, normalized_distance)
 
