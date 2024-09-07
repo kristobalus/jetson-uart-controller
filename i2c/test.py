@@ -3,7 +3,6 @@
 from smbus2 import SMBus, i2c_msg
 import time
 
-
 bus = SMBus(8)
 address = 0x10
 
