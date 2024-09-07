@@ -19,8 +19,8 @@ services:
           "serial_port":  "/dev/ttyTHS0",
           "baud_rate": 115000,
           "read_interval_secs": 0.01,
-          "distance_min_cm":  0,
-          "frequdistance_max_cm": 10000,
+          "distance_min_cm":  4,
+          "frequdistance_max_cm": 12000,
           "topic": "neurons/uart-lidar-test/in"
         }
     networks:
@@ -40,8 +40,8 @@ services:
           "i2c_bus": 8,
           "i2c_address": "0x10",
           "read_interval_secs": 0.01,
-          "distance_min_cm":  0,
-          "frequdistance_max_cm": 10000,
+          "distance_min_cm":  4,
+          "frequdistance_max_cm": 12000,
           "topic": "neurons/i2c-lidar-test/in"
         }
     networks:
@@ -61,8 +61,8 @@ services:
           "i2c_bus": 1,
           "i2c_address": "0x10",
           "read_interval_secs": 0.01,
-          "distance_min_cm":  0,
-          "frequdistance_max_cm": 10000,
+          "distance_min_cm":  4,
+          "frequdistance_max_cm": 12000,
           "topic": "neurons/i2c-lidar-test/in"
         }
     networks:
