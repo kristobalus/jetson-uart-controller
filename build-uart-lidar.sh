@@ -1,10 +1,17 @@
 #!/bin/bash
 
+
+# Path to the .cz.toml file
+CZ_CONFIG_FILE=".cz.toml"
+
+# Extract the version value from the TOML file
+VERSION=$(grep '^version\s*=' "$CZ_CONFIG_FILE" | sed -E 's/.*"([0-9]+\.[0-9]+\.[0-9]+)".*/\1/')
+echo "VERSION=$VERSION"
+
 # Read the version from package.json
 BRANCH=$(git branch --show-current)
-VERSION="1.0.0"
 IMAGE=${IMAGE:-"ghcr.io/flux-agi/flux-lidar-uart"}
-echo "building image $IMAGE:$VERSION using buildx for linux/amd64..."
+echo "building image $IMAGE:$VERSION using buildx..."
 
 # docker buildx create --use --name buildx_instance --driver docker-container --bootstrap
 
@@ -17,7 +24,7 @@ else
     docker buildx create --use --name buildx_instance --driver docker-container --bootstrap
 fi
 
-docker buildx build -f ./uart/Dockerfile \
+docker buildx build -f ./steering/Dockerfile \
 		--progress=plain \
 		--build-arg VERSION="$VERSION" \
 		--label "build-tag=build-artifact" \

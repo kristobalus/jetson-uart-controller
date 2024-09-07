@@ -7,13 +7,12 @@ import json
 import paho.mqtt.client as mqtt
 import logging as log
 
-# get log level from environment variable
-log_level_str = os.getenv('LOG_LEVEL', 'INFO').upper()
-log_level = getattr(log, log_level_str, log.INFO)
 
 # configure logging
+# get log level from environment variable
+log_level = os.getenv('LOG_LEVEL', 'INFO')
 log.basicConfig(
-    level=log_level,
+    level=getattr(log, log_level.upper(), log.INFO),
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         log.StreamHandler()
@@ -30,15 +29,13 @@ parsed_mqtt_broker_url = urlparse(mqtt_broker_url)
 MQTT_BROKER_HOST = parsed_mqtt_broker_url.hostname
 MQTT_BROKER_PORT = int(parsed_mqtt_broker_url.port)
 
-# Get the configuration JSON from the environment variable
-config_json = os.getenv('CONFIGURATION')
 
-# Parse the JSON to extract the serial port device name
+# Get the configuration JSON from the environment variable
+config_json = os.getenv("CONFIGURATION")
 if config_json:
     config = json.loads(config_json)
 else:
     raise ValueError("CONFIGURATION environment variable not set or is empty")
-
 node_id = config.get('node', {}).get('id')
 node_input = config.get('node', {}).get('input', [])
 if not node_input:
@@ -49,25 +46,24 @@ MQTT_TOPIC_DATA = f"nodes/{node_id}/input/{topic_input}"
 
 # MQTT Callbacks
 def on_connect(client, userdata, flags, rc):
-    log.info("Connected to MQTT Broker with result code " + str(rc))
+    log.info("MQTT connected to broker with result code: " + str(rc))
 
 
 # MQTT Client Setup
 mqtt_client = mqtt.Client()
 mqtt_client.on_connect = on_connect
 mqtt_client.connect(MQTT_BROKER_HOST, MQTT_BROKER_PORT, 60)
-# Start the MQTT client loop in a separate thread
-mqtt_client.loop_start()
+mqtt_client.loop_start()  # start the MQTT client loop in a separate thread
 
 # LiDAR Serial Setup
 serial_port = config.get('serial_port', '/dev/ttyTHS0')  # Default to '/dev/ttyTHS0' if 'dev' is not set
 baud_rate = config.get('baud_rate', 115200)  # Default to '/dev/ttyTHS0' if 'dev' is not set
-read_interval = int(config.get('read_interval', 0.1))  # in seconds
-# Extract min and max distance values for normalization
-distance_min = config.get('distance_min', 0)
-distance_max = config.get('distance_max', 10000)
+read_interval = int(config.get('read_interval_secs', 0.1))  # in seconds
+# extract min and max distance values for normalization
+distance_min = int(config.get('distance_min_cm', 0))
+distance_max = int(config.get('distance_max_cm', 10000))
 
-ser = serial.Serial(serial_port, baud_rate)
+lidar = serial.Serial(serial_port, baud_rate)
 
 
 # distance normalization function
@@ -79,17 +75,18 @@ def normalize(value, min_value, max_value):
 def main_loop(mqtt_client):
     try:
         while True:
-            count = ser.in_waiting
+            count = lidar.in_waiting
             if count > 8:
-                recv = ser.read(9)
-                ser.reset_input_buffer()
+                recv = lidar.read(9)
+                lidar.reset_input_buffer()
                 if recv[0] == 0x59 and recv[1] == 0x59:
                     distance = recv[2] + recv[3] * 256
                     strength = recv[4] + recv[5] * 256
-
                     normalized_distance = normalize(distance, distance_min, distance_max)
-                    data = {'distance': normalized_distance, 'strength': strength}
-                    log.debug(f"lidar data: {data}")
+
+                    log.debug(f"lidar data, distance={distance}, "
+                              f"strength={strength}, "
+                              f"normalized_distance={normalized_distance}")
 
                     mqtt_client.publish(MQTT_TOPIC_DATA, normalized_distance)
 
@@ -97,7 +94,7 @@ def main_loop(mqtt_client):
     except Exception as err:
         log.error(f"An error occurred: {err}")
     finally:
-        ser.close()
+        lidar.close()
 
 
 # blocking loop

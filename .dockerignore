@@ -7,4 +7,4 @@ readme.md
 test-uart.py
 requirements.txt
 uart/Dockerfile
-build-uart.sh
+build-uart-lidar.sh
