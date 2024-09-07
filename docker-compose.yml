@@ -26,7 +26,7 @@ services:
     networks:
       app:
 
-  i2c:
+  i2c-left:
     image: i2c-lidar
     build:
       context: .
@@ -38,6 +38,27 @@ services:
       CONFIGURATION: |
         {
           "i2c_bus": 8,
+          "i2c_address": "0x10",
+          "read_interval_secs": 0.01,
+          "distance_min_cm":  0,
+          "frequdistance_max_cm": 10000,
+          "topic": "neurons/i2c-lidar-test/in"
+        }
+    networks:
+      app:
+
+  i2c-right:
+    image: i2c-lidar
+    build:
+      context: .
+      dockerfile: ./i2c/Dockerfile
+    privileged: true
+    environment:
+      MQTT_BROKER: "mqtt://mqtt-broker:1883"
+      LOG_LEVEL: "debug"
+      CONFIGURATION: |
+        {
+          "i2c_bus": 1,
           "i2c_address": "0x10",
           "read_interval_secs": 0.01,
           "distance_min_cm":  0,
