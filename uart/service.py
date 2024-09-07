@@ -51,8 +51,8 @@ mqtt_client.loop_start()  # start the MQTT client loop in a separate thread
 
 # LiDAR Serial Setup
 serial_port = config.get('serial_port', '/dev/ttyTHS0')  # Default to '/dev/ttyTHS0' if 'dev' is not set
-baud_rate = int(config.get('baud_rate', 115200))  # Default to '/dev/ttyTHS0' if 'dev' is not set
-read_interval = int(config.get('read_interval_secs', 0.01))  # in seconds
+baud_rate = int(config.get('baud_rate', 115200))
+read_interval = float(config.get('read_interval_secs', 0.01))  # in seconds
 # extract min and max distance values for normalization
 distance_min = int(config.get('distance_min_cm', 0))
 distance_max = int(config.get('distance_max_cm', 10000))

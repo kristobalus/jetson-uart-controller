@@ -21,27 +21,28 @@ services:
           "read_interval_secs": 0.01,
           "distance_min_cm":  0,
           "frequdistance_max_cm": 10000,
-          "topic": "neurons/test-steering/out"
+          "topic": "neurons/uart-lidar-test/in"
         }
     networks:
       app:
 
-#  forward:
-#    image: forward-control
-#    build:
-#      context: .
-#      dockerfile: ./forward/Dockerfile
-#    privileged: true
-#    environment:
-#      MQTT_BROKER: "mqtt://mqtt-broker:1883"
-#      CONFIGURATION: |
-#        {
-#          "full_forward":  55,
-#          "full_backward": 40,
-#          "full_stop": 53,
-#          "pin":  32,
-#          "frequency": 400,
-#          "topic": "neurons/test-forward/out"
-#        }
-#    networks:
-#      app:
+  i2c:
+    image: i2c-lidar
+    build:
+      context: .
+      dockerfile: ./uart/Dockerfile
+    privileged: true
+    environment:
+      MQTT_BROKER: "mqtt://mqtt-broker:1883"
+      LOG_LEVEL: "debug"
+      CONFIGURATION: |
+        {
+          "i2c_bus": 8,
+          "i2c_address": "0x10",
+          "read_interval_secs": 0.01,
+          "distance_min_cm":  0,
+          "frequdistance_max_cm": 10000,
+          "topic": "neurons/i2c-lidar-test/in"
+        }
+    networks:
+      app:

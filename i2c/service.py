@@ -1,6 +1,6 @@
 from urllib.parse import urlparse
-# pySerial
-import serial
+from smbus2 import SMBus, i2c_msg
+
 import time
 import os
 import json
@@ -34,12 +34,6 @@ if config_json:
     config = json.loads(config_json)
 else:
     raise ValueError("CONFIGURATION environment variable not set or is empty")
-node_id = config.get('node', {}).get('id')
-node_input = config.get('node', {}).get('input', [])
-if not node_input:
-    raise ValueError("Input list is empty or not defined in the configuration.")
-topic_input = node_input[0]  # assume just one neuron expects readings
-MQTT_TOPIC_DATA = f"nodes/{node_id}/input/{topic_input}"
 
 
 # MQTT Callbacks
@@ -54,14 +48,18 @@ mqtt_client.connect(MQTT_BROKER_HOST, MQTT_BROKER_PORT, 60)
 mqtt_client.loop_start()  # start the MQTT client loop in a separate thread
 
 # LiDAR Serial Setup
-serial_port = config.get('serial_port', '/dev/ttyTHS0')  # Default to '/dev/ttyTHS0' if 'dev' is not set
-baud_rate = config.get('baud_rate', 115200)  # Default to '/dev/ttyTHS0' if 'dev' is not set
-read_interval = int(config.get('read_interval_secs', 0.1))  # in seconds
+i2c_bus = config.get('i2c_bus', 1)
+i2c_address = int(config.get('i2c_address', "0x10"), 16)
+baud_rate = int(config.get('baud_rate', 115200))
+read_interval = float(config.get('read_interval_secs', 0.01))  # in seconds
 # extract min and max distance values for normalization
 distance_min = int(config.get('distance_min_cm', 0))
 distance_max = int(config.get('distance_max_cm', 10000))
+topic = config.get('topic')
 
-lidar = serial.Serial(serial_port, baud_rate)
+bus = SMBus(i2c_bus)
+i2c_write_msg = i2c_msg.write(i2c_address, [0x5A, 0x05, 0x00, 0x01, 0x60])
+i2c_read_msg = i2c_msg.read(i2c_address, 9)
 
 
 # distance normalization function
@@ -73,26 +71,27 @@ def normalize(value, min_value, max_value):
 def main_loop(mqtt_client):
     try:
         while True:
-            count = lidar.in_waiting
-            if count > 8:
-                recv = lidar.read(9)
-                lidar.reset_input_buffer()
-                if recv[0] == 0x59 and recv[1] == 0x59:
-                    distance = recv[2] + recv[3] * 256
-                    strength = recv[4] + recv[5] * 256
-                    normalized_distance = normalize(distance, distance_min, distance_max)
+            bus.i2c_rdwr(i2c_write_msg, i2c_read_msg)
+            data = list(i2c_read_msg)
+            log.debug(f"recieved data: {data}")
+            distance = (data[3] << 8 | data[2])
+            strength = data[5] << 8 | data[4]
+            mode = data[6]
 
-                    log.debug(f"lidar data, distance={distance}, "
-                              f"strength={strength}, "
-                              f"normalized_distance={normalized_distance}")
+            normalized_distance = normalize(distance, distance_min, distance_max)
 
-                    mqtt_client.publish(MQTT_TOPIC_DATA, normalized_distance)
+            log.debug(f"lidar data, distance={distance}, "
+                      f"strength={strength}, "
+                      f"normalized_distance={normalized_distance}"
+                      f"mode={mode}")
+
+            mqtt_client.publish(topic, normalized_distance)
 
             time.sleep(read_interval)
     except Exception as err:
         log.error(f"An error occurred: {err}")
     finally:
-        lidar.close()
+        bus.close()
 
 
 # blocking loop
