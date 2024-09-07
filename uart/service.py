@@ -36,12 +36,6 @@ if config_json:
     config = json.loads(config_json)
 else:
     raise ValueError("CONFIGURATION environment variable not set or is empty")
-node_id = config.get('node', {}).get('id')
-node_input = config.get('node', {}).get('input', [])
-if not node_input:
-    raise ValueError("Input list is empty or not defined in the configuration.")
-topic_input = node_input[0]  # assume just one neuron expects readings
-MQTT_TOPIC_DATA = f"nodes/{node_id}/input/{topic_input}"
 
 
 # MQTT Callbacks
@@ -57,11 +51,12 @@ mqtt_client.loop_start()  # start the MQTT client loop in a separate thread
 
 # LiDAR Serial Setup
 serial_port = config.get('serial_port', '/dev/ttyTHS0')  # Default to '/dev/ttyTHS0' if 'dev' is not set
-baud_rate = config.get('baud_rate', 115200)  # Default to '/dev/ttyTHS0' if 'dev' is not set
-read_interval = int(config.get('read_interval_secs', 0.1))  # in seconds
+baud_rate = int(config.get('baud_rate', 115200))  # Default to '/dev/ttyTHS0' if 'dev' is not set
+read_interval = int(config.get('read_interval_secs', 0.01))  # in seconds
 # extract min and max distance values for normalization
 distance_min = int(config.get('distance_min_cm', 0))
 distance_max = int(config.get('distance_max_cm', 10000))
+topic = config.get('topic')
 
 lidar = serial.Serial(serial_port, baud_rate)
 
@@ -88,7 +83,7 @@ def main_loop(mqtt_client):
                               f"strength={strength}, "
                               f"normalized_distance={normalized_distance}")
 
-                    mqtt_client.publish(MQTT_TOPIC_DATA, normalized_distance)
+                    mqtt_client.publish(topic, normalized_distance)
 
             time.sleep(read_interval)
     except Exception as err:
