@@ -16,6 +16,7 @@ services:
       LOG_LEVEL: "debug"
       CONFIGURATION: |
         {
+          "use_test_streamer": true,
           "serial_port":  "/dev/tty-test-out",
           "baud_rate": 115000,
           "read_interval_secs": 1,

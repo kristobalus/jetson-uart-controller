@@ -7,8 +7,6 @@ import time
 
 
 def do_test_stream():
-    print("start test streamer")
-
     serial_writer = serial.Serial('/dev/tty-test-in', 115200)
     serial_writer.reset_output_buffer()
 
@@ -17,8 +15,6 @@ def do_test_stream():
     distance_max = 12000
     strength_min = 100
     strength_max = 1000
-
-    print(f"Test stream started")
 
     try:
         while True:
@@ -50,6 +46,7 @@ def do_socat():
     command = "socat PTY,link=/dev/tty-test-in,raw,echo=0 PTY,link=/dev/tty-test-out,raw,echo=0"
     subprocess.run(command, shell=True, check=True)
 
+
 def start_test_streamer():
     socat_thread = threading.Thread(target=do_socat)
     socat_thread.start()
@@ -58,8 +55,6 @@ def start_test_streamer():
 
     serial_thread = threading.Thread(target=do_test_stream)
     serial_thread.start()
-
-    print("socat sockets created")
 
 
 
