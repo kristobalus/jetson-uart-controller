@@ -18,7 +18,7 @@ services:
         {
           "serial_port":  "/dev/tty-test-out",
           "baud_rate": 115000,
-          "read_interval_secs": 0.01,
+          "read_interval_secs": 1,
           "distance_min_cm":  4,
           "distance_max_cm": 12000,
           "topic": "neurons/uart-lidar-test/in"
