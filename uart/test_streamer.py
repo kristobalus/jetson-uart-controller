@@ -5,9 +5,11 @@ import random
 import subprocess
 import time
 
+stream_dev = "/dev/tty-test-in"
+
 
 def do_test_stream():
-    serial_writer = serial.Serial('/dev/tty-test-in', 115200)
+    serial_writer = serial.Serial(stream_dev, 115200)
     serial_writer.reset_output_buffer()
 
     # Range of values for distance and strength
@@ -55,6 +57,8 @@ def start_test_streamer():
 
     serial_thread = threading.Thread(target=do_test_stream)
     serial_thread.start()
+
+    return stream_dev
 
 
 
