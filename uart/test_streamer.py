@@ -5,11 +5,12 @@ import random
 import subprocess
 import time
 
-stream_dev = "/dev/tty-test-in"
+dev_in = "/dev/tty-test-in"
+dev_out = "/dev/tty-test-out"
 
 
 def do_test_stream():
-    serial_writer = serial.Serial(stream_dev, 115200)
+    serial_writer = serial.Serial(dev_in, 115200)
     serial_writer.reset_output_buffer()
 
     # Range of values for distance and strength
@@ -45,7 +46,7 @@ def do_test_stream():
 
 
 def do_socat():
-    command = "socat PTY,link=/dev/tty-test-in,raw,echo=0 PTY,link=/dev/tty-test-out,raw,echo=0"
+    command = f"socat PTY,link={dev_in},raw,echo=0 PTY,link={dev_out},raw,echo=0"
     subprocess.run(command, shell=True, check=True)
 
 
@@ -58,7 +59,7 @@ def start_test_streamer():
     serial_thread = threading.Thread(target=do_test_stream)
     serial_thread.start()
 
-    return stream_dev
+    return dev_out
 
 
 
