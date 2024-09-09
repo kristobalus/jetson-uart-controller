@@ -62,7 +62,7 @@ log.info(f"serial_port {serial_port}")
 
 if serial_port == "/dev/tty-test-out":
     start_test_streamer()
-    log.debug("test data stream started on /dev/tty-test-in")
+    log.debug("test data stream started")
 
 serial_reader = serial.Serial(serial_port, baud_rate)
 

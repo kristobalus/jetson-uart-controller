@@ -39,7 +39,6 @@ def do_test_stream():
             send_buffer[8] = 0  # placeholder for checksum or other data
 
             serial_writer.write(send_buffer)  # send the prepared buffer
-            print(f"Test data sent.")
             time.sleep(1)  # add delay to avoid flooding the port
     except Exception as e:
         print(f"Error while writing to serial port: {e}")
