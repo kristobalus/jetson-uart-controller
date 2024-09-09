@@ -123,7 +123,7 @@ def main_loop(mqtt_client):
                                          "normalized_distance": normalized_distance,
                                          "mode": mode})
 
-            mqtt_client.publish(topic, normalized_distance)
+            mqtt_client.publish(topic, json.dumps({"signal": normalized_distance}))
 
             time.sleep(read_interval_secs)
     except Exception as err:
