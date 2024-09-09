@@ -58,7 +58,7 @@ distance_max = int(config.get('distance_max_cm', 10000))
 topic = config.get('topic')
 use_test_streamer = bool(config.get('use_test_streamer', False))
 
-log.info("configuration %s", { "config": config })
+log.info("configuration %s", {"config": config})
 log.info(f"serial_port {serial_port}")
 
 if use_test_streamer:
@@ -93,7 +93,7 @@ def main_loop(mqtt_client):
                                                  "strength": strength,
                                                  "normalized_distance": normalized_distance})
 
-                    mqtt_client.publish(topic, normalized_distance)
+                    mqtt_client.publish(topic, json.dumps({"signal": normalized_distance}))
 
             time.sleep(read_interval)
     except Exception as err:
