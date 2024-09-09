@@ -16,11 +16,11 @@ services:
       LOG_LEVEL: "debug"
       CONFIGURATION: |
         {
-          "serial_port":  "/dev/ttyTHS0",
+          "serial_port":  "/dev/tty-test-out",
           "baud_rate": 115000,
           "read_interval_secs": 0.01,
           "distance_min_cm":  4,
-          "frequdistance_max_cm": 12000,
+          "distance_max_cm": 12000,
           "topic": "neurons/uart-lidar-test/in"
         }
     networks:

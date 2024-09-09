@@ -6,6 +6,7 @@ import os
 import json
 import paho.mqtt.client as mqtt
 import logging as log
+from test_streamer import start_test_streamer
 
 # configure logging
 # get log level from environment variable
@@ -48,7 +49,7 @@ mqtt_client.connect(MQTT_BROKER_HOST, MQTT_BROKER_PORT, 60)
 mqtt_client.loop_start()  # start the MQTT client loop in a separate thread
 
 # LiDAR Serial Setup
-serial_port = config.get('serial_port', '/dev/ttyTHS0')  # Default to '/dev/ttyTHS0' if 'dev' is not set
+serial_port = config.get('serial_port', '/dev/tty-test-out')
 baud_rate = int(config.get('baud_rate', 115200))
 read_interval = float(config.get('read_interval_secs', 0.01))  # in seconds
 # extract min and max distance values for normalization
@@ -56,7 +57,14 @@ distance_min = int(config.get('distance_min_cm', 0))
 distance_max = int(config.get('distance_max_cm', 10000))
 topic = config.get('topic')
 
-lidar = serial.Serial(serial_port, baud_rate)
+log.info("configuration %s", { "config": config })
+log.info(f"serial_port {serial_port}")
+
+if serial_port == "/dev/tty-test-out":
+    start_test_streamer()
+    log.debug("test data stream started on /dev/tty-test-in")
+
+serial_reader = serial.Serial(serial_port, baud_rate)
 
 
 # distance normalization function
@@ -68,10 +76,10 @@ def normalize(value, min_value, max_value):
 def main_loop(mqtt_client):
     try:
         while True:
-            count = lidar.in_waiting
+            count = serial_reader.in_waiting
             if count > 8:
-                recv = lidar.read(9)
-                lidar.reset_input_buffer()
+                recv = serial_reader.read(9)
+                serial_reader.reset_input_buffer()
                 if recv[0] == 0x59 and recv[1] == 0x59:
                     distance = recv[2] + recv[3] * 256
                     strength = recv[4] + recv[5] * 256
@@ -87,7 +95,7 @@ def main_loop(mqtt_client):
     except Exception as err:
         log.error(f"An error occurred: {err}")
     finally:
-        lidar.close()
+        serial_reader.close()
 
 
 # blocking loop
