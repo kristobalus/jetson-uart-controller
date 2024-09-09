@@ -53,12 +53,14 @@ mqtt_client.loop_start()  # start the MQTT client loop in a separate thread
 i2c_bus = config.get('i2c_bus', 1)
 i2c_address = int(config.get('i2c_address', "0x10"), 16)
 baud_rate = int(config.get('baud_rate', 115200))
-read_interval = float(config.get('read_interval_secs', 0.01))  # in seconds
-# extract min and max distance values for normalization
+read_interval_secs = float(config.get('read_interval_secs', 0.01))  # in seconds
 distance_min = int(config.get('distance_min_cm', 0))
 distance_max = int(config.get('distance_max_cm', 10000))
-topic = config.get('topic')
 use_fake_device = bool(config.get('use_fake_device', False))
+topic = config.get('topic')
+
+if topic is None:
+    raise Exception("Should have topic defined")
 
 i2c_read_msg = None
 i2c_write_msg = None
@@ -123,7 +125,7 @@ def main_loop(mqtt_client):
 
             mqtt_client.publish(topic, normalized_distance)
 
-            time.sleep(read_interval)
+            time.sleep(read_interval_secs)
     except Exception as err:
         log.error(f"An error occurred: {err}")
     finally:
