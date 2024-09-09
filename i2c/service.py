@@ -65,32 +65,32 @@ if topic is None:
 i2c_read_msg = None
 i2c_write_msg = None
 
-
-def randomizer(arg1, arg2):
-    global i2c_read_msg
-    i2c_read_msg = [
-        0x00,  # header
-        0x00,  # header
-        0x12,  # distance high
-        0x34,  # distance low
-        0x00,  # strength high
-        0x56,  # strength low
-        0x01,  # mode byte
-        0x00,  # ??
-        0x00  # ??
-    ]
-    # Randomize distance (2 bytes)
-    distance = random.randint(0, distance_max)
-    i2c_read_msg[2] = distance & 0xFF  # LSB
-    i2c_read_msg[3] = (distance >> 8) & 0xFF  # MSB
-    # Randomize strength (2 bytes)
-    strength = random.randint(0, 0xFFFF)
-    i2c_read_msg[4] = strength & 0xFF  # LSB
-    i2c_read_msg[5] = (strength >> 8) & 0xFF  # MSB
-
-
 if use_fake_device:
     log.debug("using fake device")
+
+
+    def randomizer(arg1, arg2):
+        global i2c_read_msg
+        i2c_read_msg = [
+            0x00,  # header
+            0x00,  # header
+            0x12,  # distance high
+            0x34,  # distance low
+            0x00,  # strength high
+            0x56,  # strength low
+            0x01,  # mode byte
+            0x00,  # ??
+            0x00  # ??
+        ]
+        # Randomize distance (2 bytes)
+        distance = random.randint(0, distance_max)
+        i2c_read_msg[2] = distance & 0xFF  # LSB
+        i2c_read_msg[3] = (distance >> 8) & 0xFF  # MSB
+        # Randomize strength (2 bytes)
+        strength = random.randint(0, 0xFFFF)
+        i2c_read_msg[4] = strength & 0xFF  # LSB
+        i2c_read_msg[5] = (strength >> 8) & 0xFF  # MSB
+
     bus = MagicMock()
     i2c_write_msg = [0x5A, 0x05, 0x00, 0x01, 0x60]
     i2c_read_msg = [0x00, 0x00, 0x12, 0x34, 0x00, 0x56, 0x01, 0x00, 0x00]

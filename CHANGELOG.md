@@ -1,3 +1,23 @@
+## 0.4.0 (2024-09-09)
+
+### Feat
+
+- fake device
+- fake device
+- fake device
+- test streamer
+- test streamer
+- test streamer
+- test streamer
+- test streamer
+- test streamer
+
+### Fix
+
+- output message format
+- output message format
+- test streamer
+
 ## 0.3.0 (2024-09-09)
 
 ### Feat
