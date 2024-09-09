@@ -63,7 +63,7 @@ log.info(f"serial_port {serial_port}")
 
 if use_test_streamer:
     serial_port = start_test_streamer()
-    log.debug("test streamer started")
+    log.debug(f"test streamer started at {serial_port}")
 
 if serial_port is None:
     raise Exception("serial_port should be defined")
