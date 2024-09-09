@@ -56,12 +56,12 @@ read_interval = float(config.get('read_interval_secs', 0.01))  # in seconds
 distance_min = int(config.get('distance_min_cm', 0))
 distance_max = int(config.get('distance_max_cm', 10000))
 topic = config.get('topic')
-use_test_streamer = bool(config.get('use_test_streamer', False))
+use_fake_device = bool(config.get('use_fake_device', False))
 
 log.info("configuration %s", {"config": config})
 log.info(f"serial_port {serial_port}")
 
-if use_test_streamer:
+if use_fake_device:
     serial_port = start_test_streamer()
     log.debug(f"test streamer started at {serial_port}")
 

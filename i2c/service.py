@@ -6,6 +6,8 @@ import os
 import json
 import paho.mqtt.client as mqtt
 import logging as log
+import random
+from unittest.mock import MagicMock
 
 # configure logging
 # get log level from environment variable
@@ -56,10 +58,45 @@ read_interval = float(config.get('read_interval_secs', 0.01))  # in seconds
 distance_min = int(config.get('distance_min_cm', 0))
 distance_max = int(config.get('distance_max_cm', 10000))
 topic = config.get('topic')
+use_fake_device = bool(config.get('use_fake_device', False))
 
-bus = SMBus(i2c_bus)
-i2c_write_msg = i2c_msg.write(i2c_address, [0x5A, 0x05, 0x00, 0x01, 0x60])
-i2c_read_msg = i2c_msg.read(i2c_address, 9)
+i2c_read_msg = None
+i2c_write_msg = None
+
+
+def randomizer(arg1, arg2):
+    global i2c_read_msg
+    i2c_read_msg = [
+        0x00,  # header
+        0x00,  # header
+        0x12,  # distance high
+        0x34,  # distance low
+        0x00,  # strength high
+        0x56,  # strength low
+        0x01,  # mode byte
+        0x00,  # ??
+        0x00  # ??
+    ]
+    # Randomize distance (2 bytes)
+    distance = random.randint(0, distance_max)
+    i2c_read_msg[2] = distance & 0xFF  # LSB
+    i2c_read_msg[3] = (distance >> 8) & 0xFF  # MSB
+    # Randomize strength (2 bytes)
+    strength = random.randint(0, 0xFFFF)
+    i2c_read_msg[4] = strength & 0xFF  # LSB
+    i2c_read_msg[5] = (strength >> 8) & 0xFF  # MSB
+
+
+if use_fake_device:
+    log.debug("using fake device")
+    bus = MagicMock()
+    i2c_write_msg = [0x5A, 0x05, 0x00, 0x01, 0x60]
+    i2c_read_msg = [0x00, 0x00, 0x12, 0x34, 0x00, 0x56, 0x01, 0x00, 0x00]
+    bus.i2c_rdwr = MagicMock(return_value=i2c_read_msg, side_effect=randomizer)
+else:
+    bus = SMBus(i2c_bus)
+    i2c_write_msg = i2c_msg.write(i2c_address, [0x5A, 0x05, 0x00, 0x01, 0x60])
+    i2c_read_msg = i2c_msg.read(i2c_address, 9)
 
 
 # distance normalization function
