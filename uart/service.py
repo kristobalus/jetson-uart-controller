@@ -49,7 +49,7 @@ mqtt_client.connect(MQTT_BROKER_HOST, MQTT_BROKER_PORT, 60)
 mqtt_client.loop_start()  # start the MQTT client loop in a separate thread
 
 # LiDAR Serial Setup
-serial_port = config.get('serial_port', '/dev/tty-test-out')
+serial_port = config.get('serial_port')
 baud_rate = int(config.get('baud_rate', 115200))
 read_interval = float(config.get('read_interval_secs', 0.01))  # in seconds
 # extract min and max distance values for normalization
@@ -63,7 +63,11 @@ log.info(f"serial_port {serial_port}")
 
 if use_test_streamer:
     start_test_streamer()
+    serial_port = '/dev/tty-test-out'
     log.debug("test streamer started")
+
+if serial_port is None:
+    raise Exception("serial_port should be defined")
 
 serial_reader = serial.Serial(serial_port, baud_rate)
 
