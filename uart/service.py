@@ -62,8 +62,7 @@ log.info("configuration %s", { "config": config })
 log.info(f"serial_port {serial_port}")
 
 if use_test_streamer:
-    start_test_streamer()
-    serial_port = '/dev/tty-test-out'
+    serial_port = start_test_streamer()
     log.debug("test streamer started")
 
 if serial_port is None:
