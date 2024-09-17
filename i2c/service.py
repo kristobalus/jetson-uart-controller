@@ -9,6 +9,16 @@ import paho.mqtt.client as mqtt
 import logging as log
 import random
 from unittest.mock import MagicMock
+import signal
+import sys
+
+
+def graceful_shutdown(signal_number, frame):
+    print("Shutting down gracefully...")
+    sys.exit(0)
+
+
+signal.signal(signal.SIGTERM, graceful_shutdown)
 
 # configure logging
 # get log level from environment variable
