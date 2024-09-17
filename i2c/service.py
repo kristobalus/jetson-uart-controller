@@ -60,6 +60,8 @@ distance_max = int(config.get('distance_max_cm', 10000))
 use_fake_device = bool(config.get('use_fake_device', False))
 topic = config.get('topic')
 
+log.info("configuration %s", {"config": config})
+
 if topic is None:
     raise Exception("Should have topic defined")
 
@@ -139,10 +141,10 @@ def main_loop(mqtt_client):
 
             normalized_distance = normalize(distance, distance_min, distance_max)
 
-            log.debug("lidar data: %s", {"distance": distance,
-                                         "strength": strength,
-                                         "normalized_distance": normalized_distance,
-                                         "mode": mode})
+            # log.debug("lidar data: %s", {"distance": distance,
+            #                              "strength": strength,
+            #                              "normalized_distance": normalized_distance,
+            #                              "mode": mode})
 
             mqtt_client.publish(topic, json.dumps({"signal": normalized_distance}))
 
