@@ -1,6 +1,7 @@
 from urllib.parse import urlparse
 from smbus2 import SMBus, i2c_msg
 
+import math
 import time
 import os
 import json
@@ -68,6 +69,21 @@ i2c_write_msg = None
 if use_fake_device:
     log.debug("using fake device")
 
+    def get_distance():
+        # Parameters
+        period = 10  # Time period for one oscillation in seconds
+
+        # Calculate amplitude and offset
+        amplitude = (distance_max - distance_min) / 2
+        offset = (distance_max + distance_min) / 2
+
+        # Get the current time (in seconds)
+        current_time = time.time()
+
+        # Calculate the sine wave value based on time
+        distance = amplitude * math.sin(2 * math.pi * current_time / period) + offset
+
+        return int(distance)
 
     def randomizer(arg1, arg2):
         global i2c_read_msg
@@ -83,7 +99,8 @@ if use_fake_device:
             0x00  # ??
         ]
         # Randomize distance (2 bytes)
-        distance = random.randint(0, distance_max)
+        # distance = random.randint(0, distance_max)
+        distance = get_distance()
         i2c_read_msg[2] = distance & 0xFF  # LSB
         i2c_read_msg[3] = (distance >> 8) & 0xFF  # MSB
         # Randomize strength (2 bytes)

@@ -13,7 +13,7 @@ dev_out = "/dev/tty-test-out"
 def get_distance():
     # Parameters
     distance_min = 10  # Minimum distance
-    distance_max = 150  # Maximum distance
+    distance_max = 100  # Maximum distance
     period = 10  # Time period for one oscillation in seconds
 
     # Calculate amplitude and offset
@@ -34,8 +34,8 @@ def do_test_stream():
     serial_writer.reset_output_buffer()
 
     # Range of values for distance and strength
-    distance_min = 4
-    distance_max = 12000
+    # distance_min = 4
+    # distance_max = 12000
     strength_min = 100
     strength_max = 1000
 
