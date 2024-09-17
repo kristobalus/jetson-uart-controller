@@ -73,7 +73,8 @@ serial_reader = serial.Serial(serial_port, baud_rate)
 
 # distance normalization function
 def normalize(value, min_value, max_value):
-    return (value - min_value) / (max_value - min_value)
+    value = min(max_value, value)
+    return 1 - (value - min_value) / (max_value - min_value)
 
 
 # LiDAR data reading and publishing

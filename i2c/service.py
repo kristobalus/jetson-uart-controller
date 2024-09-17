@@ -103,7 +103,8 @@ else:
 
 # distance normalization function
 def normalize(value, min_value, max_value):
-    return (value - min_value) / (max_value - min_value)
+    value = min(max_value, value)
+    return 1 - (value - min_value) / (max_value - min_value)
 
 
 # LiDAR data reading and publishing
@@ -115,6 +116,9 @@ def main_loop(mqtt_client):
             distance = (data[3] << 8 | data[2])
             strength = data[5] << 8 | data[4]
             mode = data[6]
+
+            if distance > distance_max:
+                distance = 0
 
             normalized_distance = normalize(distance, distance_min, distance_max)
 
