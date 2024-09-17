@@ -11,6 +11,6 @@ def normalize(value, min_value, max_value):
     return 1 - (value - min_value) / (max_value - min_value)
 
 
-distance = 0
+distance = 80
 print(normalize(distance, distance_min, distance_max))
 
