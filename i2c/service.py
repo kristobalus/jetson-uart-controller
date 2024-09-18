@@ -49,16 +49,37 @@ else:
     raise ValueError("CONFIGURATION environment variable not set or is empty")
 
 
-# MQTT Callbacks
+# MQTT event handlers
 def on_connect(client, userdata, flags, rc):
-    log.info("MQTT connected to broker with result code: " + str(rc))
+    log.info("MQTT connected with result code " + str(rc))
+
+    client.subscribe(topic)
+    log.info(f"MQTT subscribed to {topic}")
+
+    client.subscribe("manager/service/trigger-status")
+    log.info(f"MQTT subscribed to manager/service/trigger-status")
+
+
+def on_message(client, userdata, msg):
+    log.debug("MQTT message received on topic " + msg.topic + ": " + str(msg.payload.decode()))
+
+    if msg.topic == "manager/service/trigger-status":
+        log.debug("sending status")
+        if service_id is not None:
+            client.publish(f"services/{service_id}/status", json.dumps({"id": node_id, "status": "RUNNING"}))
+        if node_id is not None:
+            client.publish(f"nodes/{node_id}/status", json.dumps({"id": node_id, "status": "RUNNING"}))
+    else:
+        log.debug(f"Unknown topic: {msg.topic}")
 
 
 # MQTT Client Setup
-mqtt_client = mqtt.Client()
+mqtt_client = mqtt.Client(reconnect_on_failure=True)
 mqtt_client.on_connect = on_connect
+mqtt_client.on_message = on_message
 mqtt_client.connect(MQTT_BROKER_HOST, MQTT_BROKER_PORT, 60)
 mqtt_client.loop_start()  # start the MQTT client loop in a separate thread
+
 
 # LiDAR Serial Setup
 i2c_bus = config.get('i2c_bus', 1)
@@ -69,6 +90,8 @@ distance_min = int(config.get('distance_min_cm', 0))
 distance_max = int(config.get('distance_max_cm', 10000))
 use_fake_device = bool(config.get('use_fake_device', False))
 topic = config.get('topic')
+service_id = config.get('service_id')
+node_id = config.get('node_id')
 
 log.info("configuration %s", {"config": config})
 
