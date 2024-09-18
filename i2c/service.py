@@ -169,9 +169,6 @@ def main_loop(mqtt_client):
             strength = data[5] << 8 | data[4]
             mode = data[6]
 
-            if distance > distance_max:
-                distance = 0
-
             normalized_distance = normalize(distance, distance_min, distance_max)
 
             # log.debug("lidar data: %s", {"distance": distance,
