@@ -75,7 +75,7 @@ def on_message(client, userdata, msg):
 # MQTT Client Setup
 mqtt_client = mqtt.Client(reconnect_on_failure=True)
 mqtt_client.on_connect = on_connect
-mqtt_client.on_connect = on_message
+mqtt_client.on_message = on_message
 mqtt_client.connect(MQTT_BROKER_HOST, MQTT_BROKER_PORT, 60)
 mqtt_client.loop_start()  # start the MQTT client loop in a separate thread
 
