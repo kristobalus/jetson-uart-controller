@@ -5,7 +5,7 @@ networks:
 
 services:
   mqtt-broker:
-    image: nanomq/nanomq:0.6.6-slim
+    image: emqx/nanomq:0.22.8
     networks:
       app:
     ports:
