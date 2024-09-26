@@ -123,8 +123,10 @@ if use_fake_device:
     def randomizer(arg1, arg2):
         global i2c_read_msg
         i2c_read_msg = [
-            0x00,  # header
-            0x00,  # header
+            0x00,  # stop bytes
+            0x00,  # stop bytes
+            0x59,  # header
+            0x59,  # header
             0x12,  # distance high
             0x34,  # distance low
             0x00,  # strength high
@@ -136,16 +138,16 @@ if use_fake_device:
         # Randomize distance (2 bytes)
         # distance = random.randint(0, distance_max)
         distance = get_distance()
-        i2c_read_msg[2] = distance & 0xFF  # LSB
-        i2c_read_msg[3] = (distance >> 8) & 0xFF  # MSB
+        i2c_read_msg[4] = distance & 0xFF  # LSB
+        i2c_read_msg[5] = (distance >> 8) & 0xFF  # MSB
         # Randomize strength (2 bytes)
         strength = random.randint(0, 0xFFFF)
-        i2c_read_msg[4] = strength & 0xFF  # LSB
-        i2c_read_msg[5] = (strength >> 8) & 0xFF  # MSB
+        i2c_read_msg[6] = strength & 0xFF  # LSB
+        i2c_read_msg[7] = (strength >> 8) & 0xFF  # MSB
 
     bus = MagicMock()
     i2c_write_msg = [0x5A, 0x05, 0x00, 0x01, 0x60]
-    i2c_read_msg = [0x00, 0x00, 0x56, 0x56, 0x12, 0x34, 0x00, 0x56, 0x01, 0x00, 0x00]
+    i2c_read_msg = [0x00, 0x00, 0x59, 0x59, 0x12, 0x34, 0x00, 0x56, 0x01, 0x00, 0x00]
     bus.i2c_rdwr = MagicMock(return_value=i2c_read_msg, side_effect=randomizer)
 else:
     bus = SMBus(i2c_bus)
