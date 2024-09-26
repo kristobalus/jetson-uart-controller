@@ -145,12 +145,12 @@ if use_fake_device:
 
     bus = MagicMock()
     i2c_write_msg = [0x5A, 0x05, 0x00, 0x01, 0x60]
-    i2c_read_msg = [0x00, 0x00, 0x12, 0x34, 0x00, 0x56, 0x01, 0x00, 0x00]
+    i2c_read_msg = [0x00, 0x00, 0x56, 0x56, 0x12, 0x34, 0x00, 0x56, 0x01, 0x00, 0x00]
     bus.i2c_rdwr = MagicMock(return_value=i2c_read_msg, side_effect=randomizer)
 else:
     bus = SMBus(i2c_bus)
     i2c_write_msg = i2c_msg.write(i2c_address, [0x5A, 0x05, 0x00, 0x01, 0x60])
-    i2c_read_msg = i2c_msg.read(i2c_address, 9)
+    i2c_read_msg = i2c_msg.read(i2c_address, 11)
 
 
 # distance normalization function
@@ -165,9 +165,9 @@ def main_loop(mqtt_client):
         while True:
             bus.i2c_rdwr(i2c_write_msg, i2c_read_msg)
             data = list(i2c_read_msg)
-            distance = (data[3] << 8 | data[2])
-            strength = data[5] << 8 | data[4]
-            mode = data[6]
+            distance = (data[5] << 8 | data[4])
+            # strength = data[7] << 8 | data[6]
+            # mode = data[8]
 
             normalized_distance = normalize(distance, distance_min, distance_max)
 
