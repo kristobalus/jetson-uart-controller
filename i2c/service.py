@@ -150,6 +150,7 @@ if use_fake_device:
 else:
     bus = SMBus(i2c_bus)
     i2c_write_msg = i2c_msg.write(i2c_address, [0x5A, 0x05, 0x00, 0x01, 0x60])
+    # first 2 zero bytes are stop bytes between messages, just like separator
     i2c_read_msg = i2c_msg.read(i2c_address, 11)
 
 
