@@ -11,7 +11,7 @@ import random
 from unittest.mock import MagicMock
 import signal
 import sys
-
+import uuid
 
 def graceful_shutdown(signal_number, frame):
     print("Shutting down gracefully...")
@@ -78,7 +78,8 @@ mqtt_client.connect(MQTT_BROKER_HOST, MQTT_BROKER_PORT, 60)
 mqtt_client.loop_start()  # start the MQTT client loop in a separate thread
 
 
-# LiDAR Serial Setup
+# settings
+unique_id = uuid.uuid4()
 i2c_bus = config.get('i2c_bus', 1)
 i2c_address = int(config.get('i2c_address', "0x10"), 16)
 baud_rate = int(config.get('baud_rate', 115200))
@@ -166,8 +167,8 @@ def main_loop(mqtt_client):
             bus.i2c_rdwr(i2c_write_msg, i2c_read_msg)
             data = list(i2c_read_msg)
             distance = (data[5] << 8 | data[4])
-            # strength = data[7] << 8 | data[6]
-            # mode = data[8]
+            strength = data[7] << 8 | data[6]
+            mode = data[8]
 
             normalized_distance = normalize(distance, distance_min, distance_max)
 
@@ -177,6 +178,7 @@ def main_loop(mqtt_client):
             #                              "mode": mode})
 
             mqtt_client.publish(topic, json.dumps({"signal": normalized_distance}))
+            mqtt_client.publish(unique_id, json.dumps({"distance":distance,"strength": strength,"mode":mode}))
 
             time.sleep(read_interval_secs)
     except Exception as err:
