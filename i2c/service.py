@@ -91,7 +91,7 @@ topic = config.get('topic')
 service_id = config.get('service_id')
 node_id = config.get('node_id')
 
-log.info("configuration %s", {"config": config})
+log.info("configuration %s", {"config": config, "unique_id": unique_id})
 
 if topic is None:
     raise Exception("Should have topic defined")
