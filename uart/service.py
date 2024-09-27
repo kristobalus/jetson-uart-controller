@@ -52,9 +52,6 @@ else:
 def on_connect(client, userdata, flags, rc):
     log.info("MQTT connected with result code " + str(rc))
 
-    client.subscribe(topic)
-    log.info(f"MQTT subscribed to {topic}")
-
     client.subscribe("manager/service/trigger-status")
     log.info(f"MQTT subscribed to manager/service/trigger-status")
 
@@ -108,30 +105,6 @@ serial_reader = serial.Serial(serial_port, baud_rate)
 def normalize(value, min_value, max_value):
     value = min(max_value, value)
     return 1 - (value - min_value) / (max_value - min_value)
-
-
-# MQTT event handlers
-def on_connect(client, userdata, flags, rc):
-    log.info("MQTT connected with result code " + str(rc))
-
-    client.subscribe(topic)
-    log.info(f"MQTT subscribed to {topic}")
-
-    client.subscribe("manager/service/trigger-status")
-    log.info(f"MQTT subscribed to manager/service/trigger-status")
-
-
-def on_message(client, userdata, msg):
-    log.debug("MQTT message received on topic " + msg.topic + ": " + str(msg.payload.decode()))
-
-    if msg.topic == "manager/service/trigger-status":
-        log.debug("sending status")
-        if service_id is not None:
-            client.publish(f"services/{service_id}/status", json.dumps({"id": node_id, "status": "RUNNING"}))
-        if node_id is not None:
-            client.publish(f"nodes/{node_id}/status", json.dumps({"id": node_id, "status": "RUNNING"}))
-    else:
-        log.debug(f"Unknown topic: {msg.topic}")
 
 
 # LiDAR data reading and publishing

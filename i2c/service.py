@@ -53,9 +53,6 @@ else:
 def on_connect(client, userdata, flags, rc):
     log.info("MQTT connected with result code " + str(rc))
 
-    client.subscribe(topic)
-    log.info(f"MQTT subscribed to {topic}")
-
     client.subscribe("manager/service/trigger-status")
     log.info(f"MQTT subscribed to manager/service/trigger-status")
 
