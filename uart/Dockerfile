@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/l4t-base:r32.4.3 AS base
+FROM nvcr.io/nvidia/l4t-base:r32.5.0 AS base
 
 ENV PYTHONUNBUFFERED=1
 

@@ -22,7 +22,7 @@ services:
           "read_interval_secs": 1,
           "distance_min_cm":  4,
           "distance_max_cm": 12000,
-          "topic": "neurons/uart-lidar-test/in"
+          "topic": "neurons/uart-lidar-test-uart/in"
         }
     networks:
       app:
@@ -44,7 +44,7 @@ services:
           "read_interval_secs": 1,
           "distance_min_cm":  4,
           "distance_max_cm": 12000,
-          "topic": "neurons/i2c-lidar-test/in"
+          "topic": "neurons/i2c-lidar-test-left/in"
         }
     networks:
       app:
@@ -66,7 +66,7 @@ services:
           "read_interval_secs": 1,
           "distance_min_cm":  4,
           "distance_max_cm": 12000,
-          "topic": "neurons/i2c-lidar-test/in"
+          "topic": "neurons/i2c-lidar-test-right/in"
         }
     networks:
       app:
