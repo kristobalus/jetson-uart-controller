@@ -9,7 +9,7 @@ def main():
         #time.sleep(0.1)
         count = ser.in_waiting
         if count > 8:
-            recv = ser.read(9)
+            recv = ser.read_data(9)
             ser.reset_input_buffer()
             # type(recv), 'bytes' in python3(recv[0] = 89)
             # type(recv[0]), 'int' in python3

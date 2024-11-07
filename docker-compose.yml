@@ -9,7 +9,7 @@ services:
     image: uart-lidar
     build:
       context: .
-      dockerfile: ./uart/Dockerfile
+      dockerfile: test/uart/Dockerfile
     privileged: true
     environment:
       MQTT_BROKER: "mqtt://mqtt-broker:1883"
@@ -31,7 +31,7 @@ services:
     image: i2c-lidar
     build:
       context: .
-      dockerfile: ./i2c/Dockerfile
+      dockerfile: test/i2c/Dockerfile
     privileged: true
     environment:
       MQTT_BROKER: "mqtt://mqtt-broker:1883"
@@ -53,7 +53,7 @@ services:
     image: i2c-lidar
     build:
       context: .
-      dockerfile: ./i2c/Dockerfile
+      dockerfile: test/i2c/Dockerfile
     privileged: true
     environment:
       MQTT_BROKER: "mqtt://mqtt-broker:1883"

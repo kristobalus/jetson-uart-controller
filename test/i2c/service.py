@@ -13,6 +13,7 @@ import signal
 import sys
 import uuid
 
+
 def graceful_shutdown(signal_number, frame):
     print("Shutting down gracefully...")
     sys.exit(0)
