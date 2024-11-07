@@ -2,11 +2,12 @@ import asyncio
 import json
 
 from logging import getLogger
+
+from fluxmq.node_state_factory import NodeStateFactory
 from fluxmq.service import Service
-from fluxmq.adapter.mqtt import MQTT, Topic, Status
+from fluxmq.adapter.mqtt import MQTT, Topic, ServiceStatusFactory
 from fluxmq.message import Message
 from fluxmq.node import Node
-from fluxmq.topicfactory import TopicFactory
 
 from i2c_lidar import I2CLidar
 from lidar_data import LidarData
@@ -54,14 +55,14 @@ class I2CNode(Node):
         pass
 
     async def on_stop(self) -> None:
-        self.logger.debug(f"Node stopped {self.alias}")
+        self.logger.debug(f"Node {self.node_id} stopped.")
+        topic = self.service.topic
         pass
 
 
 class LidarService(Service):
     def on_configuration(self, message: Message):
-        self.stop_nodes()
-        self.clear_nodes()
+        self.destroy_nodes()
 
         config = json.loads(message.payload.encode())
 
@@ -72,7 +73,8 @@ class LidarService(Service):
 
             node = Node(logger=getLogger(),
                         service=self,
-                        alias=alias,
+                        state_factory=NodeStateFactory(),
+                        node_id=alias,
                         output_topics=output_topics,
                         input_topics=input_topics)
             self.append_node(node)
@@ -83,7 +85,7 @@ class LidarService(Service):
 
 async def main():
     service = LidarService(service_id="lidars")
-    service.attach(transport=MQTT(), topic=Topic(), status=Status())
+    service.attach(transport=MQTT(), topic=Topic(), status=ServiceStatusFactory())
     await service.run()
 
 
