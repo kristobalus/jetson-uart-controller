@@ -4,12 +4,12 @@ from asyncio import Task
 
 from logging import getLogger
 
-from fluxmq.node_state_factory import NodeStateFactory
+from fluxmq.node_state import NodeState
 from fluxmq.service import Service
 from fluxmq.message import Message
 from fluxmq.node import Node
 
-from fluxmq.adapter.mqtt import MQTT, Topic, ServiceStatusFactory
+from fluxmq.adapter.mqtt import MQTT, Topic, Status
 
 from lidar.lidar import Lidar, LidarData
 from lidar.i2c_lidar import I2CLidar
@@ -107,7 +107,7 @@ class LidarService(Service):
             if lidar is not None:
                 node = LidarNode(logger=getLogger(),
                                  service=self,
-                                 state_factory=NodeStateFactory(),
+                                 state_factory=NodeState(),
                                  node_id=node_id,
                                  output_topics=output_topics,
                                  input_topics=input_topics)
@@ -120,7 +120,7 @@ class LidarService(Service):
 
 async def main():
     service = LidarService(service_id="lidars")
-    service.attach(transport=MQTT(), topic=Topic(), status=ServiceStatusFactory())
+    service.attach(transport=MQTT(), topic=Topic(), status=Status())
     await service.run()
 
 
