@@ -113,7 +113,7 @@ def main_loop(mqtt_client):
         while True:
             count = serial_reader.in_waiting
             if count > 8:
-                recv = serial_reader.read_data(9)
+                recv = serial_reader.read(9)
                 serial_reader.reset_input_buffer()
                 if recv[0] == 0x59 and recv[1] == 0x59:
                     distance = recv[2] + recv[3] * 256

@@ -5,12 +5,13 @@ from logging import getLogger
 
 from fluxmq.node_state_factory import NodeStateFactory
 from fluxmq.service import Service
-from fluxmq.adapter.mqtt import MQTT, Topic, ServiceStatusFactory
 from fluxmq.message import Message
 from fluxmq.node import Node
 
-from i2c_lidar import I2CLidar
-from lidar_data import LidarData
+from fluxmq.adapter.mqtt import MQTT, Topic, ServiceStatusFactory
+
+from lidar.lidar import LidarData
+from lidar.i2c_lidar import I2CLidar
 
 
 class I2CNode(Node):
@@ -61,8 +62,8 @@ class I2CNode(Node):
 
 
 class LidarService(Service):
-    def on_configuration(self, message: Message):
-        self.destroy_nodes()
+    async def on_configuration(self, message: Message):
+        await self.destroy_nodes()
 
         config = json.loads(message.payload.encode())
 
@@ -79,7 +80,7 @@ class LidarService(Service):
                         input_topics=input_topics)
             self.append_node(node)
 
-        self.start_nodes()
+        await self.start_nodes()
         return
 
 
