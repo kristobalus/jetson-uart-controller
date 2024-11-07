@@ -1,5 +1,6 @@
 import asyncio
 import json
+from asyncio import Task
 
 from logging import getLogger
 
@@ -10,37 +11,21 @@ from fluxmq.node import Node
 
 from fluxmq.adapter.mqtt import MQTT, Topic, ServiceStatusFactory
 
-from lidar.lidar import LidarData
+from lidar.lidar import Lidar, LidarData
 from lidar.i2c_lidar import I2CLidar
+from lidar.uart_lidar import UARTLidar
+from lidar.fake_lidar import FakeLidar
 
 
-class I2CNode(Node):
-    lidar: I2CLidar
-    i2c_bus: str
-    i2c_address: str
-    distance_min: int
-    distance_max: int
-    read_interval_secs: int
+class LidarNode(Node):
+    lidar: Lidar
+    task: Task
 
-    def config(self,
-               i2c_bus: str,
-               i2c_address: str,
-               distance_min: int,
-               distance_max: int,
-               read_interval_secs: int):
-        self.i2c_bus = i2c_bus
-        self.i2c_address = i2c_address
-        self.distance_min = distance_min
-        self.distance_max = distance_max
-        self.read_interval_secs = read_interval_secs
+    def set_lidar(self, lidar: Lidar):
+        self.lidar = lidar
 
     async def on_start(self) -> None:
-        self.lidar = I2CLidar(i2c_bus=self.i2c_bus,
-                              i2c_address=self.i2c_address,
-                              distance_min=self.distance_min,
-                              distance_max=self.distance_max,
-                              read_interval_secs=self.read_interval_secs)
-        queue = self.lidar.start()
+        queue = await self.lidar.start()
 
         async def read_queue(queue: asyncio.queues.Queue[LidarData]):
             while True:
@@ -48,17 +33,19 @@ class I2CNode(Node):
                 for topic in self.output_topics:
                     await self.service.publish(topic, lidar_data)
 
-        task = asyncio.create_task(read_queue(queue))
-        task.add_done_callback(lambda t: None)
+        self.task = asyncio.create_task(read_queue(queue))
+        self.task.add_done_callback(lambda t: None)
         return
-
-    async def on_error(self, err: Exception) -> None:
-        pass
 
     async def on_stop(self) -> None:
         self.logger.debug(f"Node {self.node_id} stopped.")
-        topic = self.service.topic
-        pass
+        await self.lidar.stop()
+        if self.task:
+            self.task.cancel()
+
+    async def on_error(self, err: Exception) -> None:
+        self.logger.error(f"Node {self.node_id} error.")
+        self.logger.error(err)
 
 
 class LidarService(Service):
@@ -68,17 +55,64 @@ class LidarService(Service):
         config = json.loads(message.payload.encode())
 
         for node_config in config['nodes']:
-            alias = node_config['alias']
+            # node settings
+            node_type = node_config['type']
+            node_id = node_config['alias']
             output_topics = node_config['output_topics']
             input_topics = node_config['input_topics']
 
-            node = Node(logger=getLogger(),
-                        service=self,
-                        state_factory=NodeStateFactory(),
-                        node_id=alias,
-                        output_topics=output_topics,
-                        input_topics=input_topics)
-            self.append_node(node)
+            lidar = None
+
+            if node_type == 'i2c':
+                # i2c lidar settings
+                distance_max = node_config['distance_max']
+                distance_min = node_config['distance_min']
+                read_interval_secs = node_config['read_interval_secs']
+                i2c_bus = node_config['i2c_bus']
+                i2c_address = node_config['i2c_address']
+
+                lidar = I2CLidar(logger=getLogger(),
+                                 distance_max=distance_max,
+                                 distance_min=distance_min,
+                                 read_interval_secs=read_interval_secs,
+                                 i2c_bus=i2c_bus,
+                                 i2c_address=i2c_address)
+
+            if node_type == 'uart':
+                # lidar settings
+                distance_max = node_config['distance_max']
+                distance_min = node_config['distance_min']
+                read_interval_secs = node_config['read_interval_secs']
+                serial_port = node_config['serial_port']
+                baud_rate = node_config['baud_rate']
+
+                lidar = UARTLidar(logger=getLogger(),
+                                  distance_max=distance_max,
+                                  distance_min=distance_min,
+                                  read_interval_secs=read_interval_secs,
+                                  serial_port=serial_port,
+                                  baud_rate=baud_rate)
+
+            if node_type == 'fake':
+                # fake lidar settings
+                distance_max = node_config['distance_max']
+                distance_min = node_config['distance_min']
+                read_interval_secs = node_config['read_interval_secs']
+
+                lidar = FakeLidar(logger=getLogger(),
+                                  distance_max=distance_max,
+                                  distance_min=distance_min,
+                                  read_interval_secs=read_interval_secs)
+
+            if lidar is not None:
+                node = LidarNode(logger=getLogger(),
+                                 service=self,
+                                 state_factory=NodeStateFactory(),
+                                 node_id=node_id,
+                                 output_topics=output_topics,
+                                 input_topics=input_topics)
+                node.set_lidar(lidar)
+                self.append_node(node)
 
         await self.start_nodes()
         return

@@ -57,9 +57,9 @@ class Lidar(ABC):
         return queue
 
     async def stop(self) -> None:
-        await self.stop()
         if self.read_task is not None:
             self.read_task.cancel()
+        await self.close()
 
     def normalize_distance(self, distance):
         distance = min(self.distance_max, distance)
